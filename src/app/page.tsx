@@ -10,6 +10,7 @@ function Home() {
       <div className="relative" style={{ height: "200vh" }}>
         <Services />
       </div>
+      <h1>hi</h1>
     </main>
   );
 }

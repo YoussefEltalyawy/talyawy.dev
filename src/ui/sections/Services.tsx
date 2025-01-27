@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import ServiceCards from "../components/ServiceCard";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -10,7 +11,6 @@ if (typeof window !== "undefined") {
 function Services() {
   const servicesRef = useRef<HTMLElement>(null);
   const headingWrapperRef = useRef<HTMLHeadingElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!headingWrapperRef.current) return;
@@ -48,11 +48,6 @@ function Services() {
       filter: "blur(8px)",
     });
 
-    gsap.set(textRef.current, {
-      opacity: 0,
-      y: 50,
-    });
-
     // Overlay slide up animation
     gsap.to(servicesRef.current, {
       yPercent: 0,
@@ -77,18 +72,6 @@ function Services() {
       scrollTrigger: {
         trigger: servicesRef.current,
         start: "top center+=40%",
-        toggleActions: "play none none reverse",
-      },
-    });
-
-    gsap.to(textRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      delay: 0.2,
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top center+=20%",
         toggleActions: "play none none reverse",
       },
     });
@@ -119,6 +102,7 @@ function Services() {
         ref={headingWrapperRef}
         className="text-4xl md:text-5xl lg:text-7xl text-brand-olive mb-12"
       />
+      <ServiceCards />
     </section>
   );
 }
