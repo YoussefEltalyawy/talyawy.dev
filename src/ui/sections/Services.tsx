@@ -8,18 +8,47 @@ if (typeof window !== "undefined") {
 }
 
 function Services() {
-  const servicesRef = useRef(null);
-  const headingRef = useRef(null);
-  const textRef = useRef(null);
+  const servicesRef = useRef<HTMLElement>(null);
+  const headingWrapperRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!headingWrapperRef.current) return;
+
+    // Split heading text into words
+    const headingText = "SERVICES I OFFER";
+    const words = headingText.split(" ");
+
+    // Create word spans with overflow hidden wrappers
+    headingWrapperRef.current.innerHTML = words
+      .map(
+        (word, index) => `
+        <div class="inline-block overflow-hidden${
+          index !== words.length - 1 ? " mr-[0.25em]" : ""
+        }">
+          <span class="inline-block will-change-transform">
+            ${word}
+          </span>
+        </div>
+      `
+      )
+      .join("");
+
+    const spans = headingWrapperRef.current.querySelectorAll("span");
+
     // Initial states
     gsap.set(servicesRef.current, {
       yPercent: 100,
       borderRadius: "32px 32px 0 0",
     });
 
-    gsap.set([headingRef.current, textRef.current], {
+    gsap.set(spans, {
+      y: 100,
+      opacity: 0,
+      filter: "blur(8px)",
+    });
+
+    gsap.set(textRef.current, {
       opacity: 0,
       y: 50,
     });
@@ -37,11 +66,14 @@ function Services() {
       },
     });
 
-    // Content animations
-    gsap.to(headingRef.current, {
-      opacity: 1,
+    // Word-by-word animation
+    gsap.to(spans, {
       y: 0,
-      duration: 1,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power3.out",
       scrollTrigger: {
         trigger: servicesRef.current,
         start: "top center+=40%",
@@ -84,11 +116,9 @@ function Services() {
       style={{ zIndex: 10 }}
     >
       <h2
-        ref={headingRef}
+        ref={headingWrapperRef}
         className="text-4xl md:text-5xl lg:text-7xl text-brand-olive mb-12"
-      >
-        HOW I CAN HELP YOU /
-      </h2>
+      />
     </section>
   );
 }
