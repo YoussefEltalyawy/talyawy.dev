@@ -85,7 +85,10 @@ function Hero() {
   }, [textRefs.line1, textRefs.line2, textRefs.line3, textRefs.location, textRefs.name, textRefs.role]);
 
   return (
-    <section id="hero-section" className="fixed min-h-screen w-full bg-black overflow-hidden">
+    <section
+      id="hero-section"
+      className="relative h-full w-full bg-black overflow-hidden"
+    >
       {/* Background blur effect with animation */}
       <div
         ref={circleRef}

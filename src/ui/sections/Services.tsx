@@ -12,17 +12,15 @@ function Services() {
   const headingWrapperRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!headingWrapperRef.current) return;
+    useEffect(() => {
+      if (!headingWrapperRef.current) return;
 
-    // Split heading text into words
-    const headingText = "SERVICES I OFFER";
-    const words = headingText.split(" ");
+      const headingText = "SERVICES I OFFER";
+      const words = headingText.split(" ");
 
-    // Create word spans with overflow hidden wrappers
-    headingWrapperRef.current.innerHTML = words
-      .map(
-        (word, index) => `
+      headingWrapperRef.current.innerHTML = words
+        .map(
+          (word, index) => `
         <div class="inline-block overflow-hidden${
           index !== words.length - 1 ? " mr-[0.25em]" : ""
         }">
@@ -31,83 +29,85 @@ function Services() {
           </span>
         </div>
       `
-      )
-      .join("");
+        )
+        .join("");
 
-    const spans = headingWrapperRef.current.querySelectorAll("span");
+      const spans = headingWrapperRef.current.querySelectorAll("span");
 
-    // Initial states
-    gsap.set(servicesRef.current, {
-      yPercent: 100,
-      borderRadius: "32px 32px 0 0",
-    });
+      // Initial states
+      gsap.set(servicesRef.current, {
+        yPercent: 100,
+        borderRadius: "32px 32px 0 0",
+      });
 
-    gsap.set(spans, {
-      y: 100,
-      opacity: 0,
-      filter: "blur(8px)",
-    });
+      gsap.set(spans, {
+        y: 100,
+        opacity: 0,
+        filter: "blur(8px)",
+      });
 
-    gsap.set(textRef.current, {
-      opacity: 0,
-      y: 50,
-    });
+      gsap.set(textRef.current, {
+        opacity: 0,
+        y: 50,
+      });
 
-    // Overlay slide up animation
-    gsap.to(servicesRef.current, {
-      yPercent: 0,
-      borderRadius: 0,
-      duration: 1,
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top bottom",
-        end: "top top",
-        scrub: 1,
-      },
-    });
+      // Overlay slide up animation - adjusted to start immediately
+      gsap.to(servicesRef.current, {
+        yPercent: 0,
+        borderRadius: 0,
+        duration: 1,
+        scrollTrigger: {
+          trigger: "#hero-section",
+          start: "top top",
+          end: "+=100%",
+          scrub: 1,
+        },
+      });
 
-    // Word-by-word animation
-    gsap.to(spans, {
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      duration: 0.8,
-      stagger: 0.1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top center+=40%",
-        toggleActions: "play none none reverse",
-      },
-    });
+      // Word animation - adjusted timing
+      gsap.to(spans, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: "#hero-section",
+          start: "top center",
+          toggleActions: "play none none reverse",
+        },
+      });
 
-    gsap.to(textRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      delay: 0.2,
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top center+=20%",
-        toggleActions: "play none none reverse",
-      },
-    });
+      // Text animation - adjusted timing
+      gsap.to(textRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        delay: 0.2,
+        scrollTrigger: {
+          trigger: "#hero-section",
+          start: "top center+=20%",
+          toggleActions: "play none none reverse",
+        },
+      });
 
-    // Blur animation for hero section
-    gsap.to("#hero-section", {
-      filter: "blur(10px)",
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top bottom",
-        end: "top center",
-        scrub: 1,
-      },
-    });
+      // Blur animation - adjusted to start immediately
+      gsap.to("#hero-section", {
+        filter: "blur(10px)",
+        scrollTrigger: {
+          trigger: "#hero-section",
+          start: "top top",
+          end: "+=100%",
+          scrub: 1,
+        },
+      });
 
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, []);
+      return () => {
+        ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      };
+    }, []);
+
 
   return (
     <section
