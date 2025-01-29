@@ -2,7 +2,7 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import ServiceCards from "../components/ServiceCard";
+import ServiceCards from "../components/ServiceCards";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -15,11 +15,9 @@ function Services() {
   useEffect(() => {
     if (!headingWrapperRef.current) return;
 
-    // Split heading text into words
     const headingText = "SERVICES I OFFER";
     const words = headingText.split(" ");
 
-    // Create word spans with overflow hidden wrappers
     headingWrapperRef.current.innerHTML = words
       .map(
         (word, index) => `
@@ -37,28 +35,10 @@ function Services() {
     const spans = headingWrapperRef.current.querySelectorAll("span");
 
     // Initial states
-    gsap.set(servicesRef.current, {
-      yPercent: 100,
-      borderRadius: "32px 32px 0 0",
-    });
-
     gsap.set(spans, {
       y: 100,
       opacity: 0,
       filter: "blur(8px)",
-    });
-
-    // Overlay slide up animation
-    gsap.to(servicesRef.current, {
-      yPercent: 0,
-      borderRadius: 0,
-      duration: 1,
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top bottom",
-        end: "top top",
-        scrub: 1,
-      },
     });
 
     // Word-by-word animation
@@ -95,8 +75,7 @@ function Services() {
   return (
     <section
       ref={servicesRef}
-      className="fixed top-0 left-0 w-full min-h-screen bg-brand-beige will-change-transform p-10"
-      style={{ zIndex: 10 }}
+      className="w-full min-h-screen bg-brand-beige will-change-transform p-10"
     >
       <h2
         ref={headingWrapperRef}
