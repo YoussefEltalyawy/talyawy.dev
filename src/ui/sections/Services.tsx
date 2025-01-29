@@ -1,29 +1,25 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import ServiceCards from "../components/ServiceCards";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+gsap.registerPlugin(ScrollTrigger);
 
 function Services() {
   const servicesRef = useRef<HTMLElement>(null);
   const headingWrapperRef = useRef<HTMLHeadingElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
 
-  useGSAP(
-    () => {
-      if (!headingWrapperRef.current) return;
+  useEffect(() => {
+    if (!headingWrapperRef.current || !servicesRef.current) return;
 
-      // Split heading text into words and create HTML structure
-      const headingText = "SERVICES I OFFER";
-      const words = headingText.split(" ");
+    const headingText = "SERVICES I OFFER";
+    const words = headingText.split(" ");
 
-      headingWrapperRef.current.innerHTML = words
-        .map(
-          (word, index) => `
+    headingWrapperRef.current.innerHTML = words
+      .map(
+        (word, index) => `
         <div class="inline-block overflow-hidden${
           index !== words.length - 1 ? " mr-[0.25em]" : ""
         }">
@@ -32,61 +28,85 @@ function Services() {
           </span>
         </div>
       `
-        )
-        .join("");
+      )
+      .join("");
 
-      const spans = headingWrapperRef.current.querySelectorAll("span");
+    const spans = headingWrapperRef.current.querySelectorAll("span");
 
-      // Create timeline for the animations
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: "top center+=40%",
-          toggleActions: "play none none reverse",
-        },
-      });
+    // Initial states
+    gsap.set(servicesRef.current, {
+      yPercent: 100,
+      borderRadius: "32px 32px 0 0",
+    });
+    gsap.set(spans, { y: 100, opacity: 0, filter: "blur(8px)" });
+    gsap.set(textRef.current, { opacity: 0, y: 50 });
 
-      // Initial states
-      gsap.set(spans, {
-        y: 100,
-        opacity: 0,
-        filter: "blur(8px)",
-      });
+    // Overlay slide-up animation
+    gsap.to(servicesRef.current, {
+      yPercent: 0,
+      borderRadius: 0,
+      duration: 1,
+      scrollTrigger: {
+        trigger: "#hero-section",
+        start: "top top",
+        end: "+=100%",
+        scrub: 1,
+      },
+    });
 
-      // Word-by-word animation
-      tl.to(spans, {
-        y: 0,
-        opacity: 1,
-        filter: "blur(0px)",
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "power3.out",
-      });
+    // Word animation
+    gsap.to(spans, {
+      y: 0,
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: "#hero-section",
+        start: "top center",
+        toggleActions: "play none none reverse",
+      },
+    });
 
-      // Blur animation for hero section
-      gsap.to("#hero-section", {
-        filter: "blur(10px)",
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: "top bottom",
-          end: "top center",
-          scrub: 1,
-        },
-      });
-    },
-    { scope: servicesRef }
-  ); // Scope helps with cleanup and context
+    // Text animation
+    gsap.to(textRef.current, {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+      delay: 0.2,
+      scrollTrigger: {
+        trigger: "#hero-section",
+        start: "top center+=20%",
+        toggleActions: "play none none reverse",
+      },
+    });
+
+    // Blur animation
+    gsap.to("#hero-section", {
+      filter: "blur(10px)",
+      scrollTrigger: {
+        trigger: "#hero-section",
+        start: "top top",
+        end: "+=100%",
+        scrub: 1,
+      },
+    });
+
+    return () => ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+  }, []);
 
   return (
     <section
       ref={servicesRef}
-      className="w-full min-h-screen bg-brand-beige will-change-transform p-10"
+      className="fixed top-0 left-0 w-full min-h-screen bg-brand-beige will-change-transform p-10"
+      style={{ zIndex: 10 }}
     >
       <h2
         ref={headingWrapperRef}
         className="text-4xl md:text-5xl lg:text-7xl text-brand-olive mb-12"
       />
-      <ServiceCards />
+      <ServiceCards/>
     </section>
   );
 }
