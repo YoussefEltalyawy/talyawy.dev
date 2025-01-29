@@ -1,7 +1,8 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import ServiceCards from "../components/ServiceCards";
 
 if (typeof window !== "undefined") {
@@ -12,15 +13,17 @@ function Services() {
   const servicesRef = useRef<HTMLElement>(null);
   const headingWrapperRef = useRef<HTMLHeadingElement>(null);
 
-  useEffect(() => {
-    if (!headingWrapperRef.current) return;
+  useGSAP(
+    () => {
+      if (!headingWrapperRef.current) return;
 
-    const headingText = "SERVICES I OFFER";
-    const words = headingText.split(" ");
+      // Split heading text into words and create HTML structure
+      const headingText = "SERVICES I OFFER";
+      const words = headingText.split(" ");
 
-    headingWrapperRef.current.innerHTML = words
-      .map(
-        (word, index) => `
+      headingWrapperRef.current.innerHTML = words
+        .map(
+          (word, index) => `
         <div class="inline-block overflow-hidden${
           index !== words.length - 1 ? " mr-[0.25em]" : ""
         }">
@@ -29,48 +32,50 @@ function Services() {
           </span>
         </div>
       `
-      )
-      .join("");
+        )
+        .join("");
 
-    const spans = headingWrapperRef.current.querySelectorAll("span");
+      const spans = headingWrapperRef.current.querySelectorAll("span");
 
-    // Initial states
-    gsap.set(spans, {
-      y: 100,
-      opacity: 0,
-      filter: "blur(8px)",
-    });
+      // Create timeline for the animations
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: servicesRef.current,
+          start: "top center+=40%",
+          toggleActions: "play none none reverse",
+        },
+      });
 
-    // Word-by-word animation
-    gsap.to(spans, {
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      duration: 0.8,
-      stagger: 0.1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top center+=40%",
-        toggleActions: "play none none reverse",
-      },
-    });
+      // Initial states
+      gsap.set(spans, {
+        y: 100,
+        opacity: 0,
+        filter: "blur(8px)",
+      });
 
-    // Blur animation for hero section
-    gsap.to("#hero-section", {
-      filter: "blur(10px)",
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top bottom",
-        end: "top center",
-        scrub: 1,
-      },
-    });
+      // Word-by-word animation
+      tl.to(spans, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
+      });
 
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, []);
+      // Blur animation for hero section
+      gsap.to("#hero-section", {
+        filter: "blur(10px)",
+        scrollTrigger: {
+          trigger: servicesRef.current,
+          start: "top bottom",
+          end: "top center",
+          scrub: 1,
+        },
+      });
+    },
+    { scope: servicesRef }
+  ); // Scope helps with cleanup and context
 
   return (
     <section

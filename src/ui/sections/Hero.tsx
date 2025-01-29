@@ -1,6 +1,7 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 function Hero() {
   const circleRef = useRef(null);
@@ -13,79 +14,95 @@ function Hero() {
     line3: useRef(null),
   };
 
-  useEffect(() => {
-    // Circle animation
-    gsap.set(circleRef.current, {
-      scale: 0.2,
-      opacity: 0,
-    });
+  useGSAP(
+    () => {
+      // Create a main timeline for all animations
+      const mainTl = gsap.timeline();
 
-    gsap.to(circleRef.current, {
-      scale: 1,
-      opacity: 1,
-      duration: 1.8,
-      ease: "power2.out",
-      transformOrigin: "left bottom",
-    });
+      // Circle animation
+      mainTl.add(() => {
+        gsap.set(circleRef.current, {
+          scale: 0.2,
+          opacity: 0,
+        });
 
-    // Text animations
-    const tl = gsap.timeline({ defaults: { duration: 1, ease: "power3.out" } });
-
-    // Starting positions for text elements with blur
-    gsap.set(
-      [
-        textRefs.name.current,
-        textRefs.role.current,
-        textRefs.location.current,
-        textRefs.line1.current,
-        textRefs.line2.current,
-        textRefs.line3.current,
-      ],
-      {
-        y: 100,
-        opacity: 0,
-        filter: "blur(8px)",
-      }
-    );
-
-    // Enhanced animations with blur effect
-    tl.to(textRefs.name.current, {
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      duration: 1.2,
-    })
-      .to(
-        [textRefs.role.current, textRefs.location.current],
-        {
-          y: 0,
+        gsap.to(circleRef.current, {
+          scale: 1,
           opacity: 1,
-          filter: "blur(0px)",
-          stagger: 0.1,
-          duration: 0.8,
-        },
-        "-=0.7"
-      )
-      .to(
+          duration: 1.8,
+          ease: "power2.out",
+          transformOrigin: "left bottom",
+        });
+      });
+
+      // Text animations timeline
+      const textTl = gsap.timeline({
+        defaults: { duration: 1, ease: "power3.out" },
+      });
+
+      // Set initial states for text elements
+      gsap.set(
         [
+          textRefs.name.current,
+          textRefs.role.current,
+          textRefs.location.current,
           textRefs.line1.current,
           textRefs.line2.current,
           textRefs.line3.current,
         ],
         {
+          y: 100,
+          opacity: 0,
+          filter: "blur(8px)",
+        }
+      );
+
+      // Text reveal animations
+      textTl
+        .to(textRefs.name.current, {
           y: 0,
           opacity: 1,
           filter: "blur(0px)",
-          stagger: 0.15,
-          duration: 1,
-          ease: "power4.out", // Smoother easing for text reveal
-        },
-        "-=0.4"
-      );
-  }, [textRefs.line1, textRefs.line2, textRefs.line3, textRefs.location, textRefs.name, textRefs.role]);
+          duration: 1.2,
+        })
+        .to(
+          [textRefs.role.current, textRefs.location.current],
+          {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            stagger: 0.1,
+            duration: 0.8,
+          },
+          "-=0.7"
+        )
+        .to(
+          [
+            textRefs.line1.current,
+            textRefs.line2.current,
+            textRefs.line3.current,
+          ],
+          {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            stagger: 0.15,
+            duration: 1,
+            ease: "power4.out",
+          },
+          "-=0.4"
+        );
+
+      mainTl.add(textTl);
+    },
+    { scope: "hero" }
+  ); // Adding a scope for better cleanup
 
   return (
-    <section id="hero-section" className="fixed min-h-screen w-full bg-black overflow-hidden">
+    <section
+      id="hero-section"
+      className="fixed min-h-screen w-full bg-black overflow-hidden"
+    >
       {/* Background blur effect with animation */}
       <div
         ref={circleRef}
