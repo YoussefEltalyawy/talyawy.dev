@@ -73,7 +73,7 @@ const ServiceCard: React.FC<{
             ({number})
           </div>
           <div className="space-y-4 flex-grow">
-            <h3 className="text-5xl md:text-6xl font-bold text-brand-olive group-hover:opacity-80 transition-opacity duration-300">
+            <h3 className="text-5xl md:text-6xl font-semi-bold text-brand-olive group-hover:opacity-80 transition-opacity duration-300">
               {title}
             </h3>
             <div
