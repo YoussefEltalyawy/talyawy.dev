@@ -18,6 +18,7 @@ function Services() {
 
     const headingText = "SERVICES I OFFER";
     const words = headingText.split(" ");
+
     headingWrapperRef.current.innerHTML = words
       .map(
         (word, index) => `
@@ -60,14 +61,14 @@ function Services() {
     gsap.fromTo(
       servicesRef.current,
       {
-        borderRadius: "64px", // Start with a larger border radius
+        borderRadius: "64px",
       },
       {
         borderRadius: "0px",
         scrollTrigger: {
           trigger: servicesRef.current,
-          start: "top bottom", // Start when section becomes visible
-          end: "top top", // End when section reaches top of viewport
+          start: "top bottom",
+          end: "top top",
           scrub: 1,
         },
       }
