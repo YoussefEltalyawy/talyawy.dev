@@ -5,19 +5,19 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import ServiceCards from "../components/ServiceCards";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(ScrollTrigger);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 function Services() {
   const servicesRef = useRef<HTMLElement>(null);
   const headingWrapperRef = useRef<HTMLHeadingElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
     if (!headingWrapperRef.current || !servicesRef.current) return;
 
     const headingText = "SERVICES I OFFER";
     const words = headingText.split(" ");
-
     headingWrapperRef.current.innerHTML = words
       .map(
         (word, index) => `
@@ -35,27 +35,13 @@ function Services() {
     const spans = headingWrapperRef.current.querySelectorAll("span");
 
     // Initial states
-    gsap.set(servicesRef.current, {
-      yPercent: 100,
-      borderRadius: "32px 32px 0 0",
-    });
-    gsap.set(spans, { y: 100, opacity: 0, filter: "blur(8px)" });
-    gsap.set(textRef.current, { opacity: 0, y: 50 });
-
-    // Overlay slide-up animation
-    gsap.to(servicesRef.current, {
-      yPercent: 0,
-      borderRadius: 0,
-      duration: 1,
-      scrollTrigger: {
-        trigger: "#hero-section",
-        start: "top top",
-        end: "+=100%",
-        scrub: 1,
-      },
+    gsap.set(spans, {
+      y: 100,
+      opacity: 0,
+      filter: "blur(8px)",
     });
 
-    // Word animation
+    // Word-by-word animation
     gsap.to(spans, {
       y: 0,
       opacity: 1,
@@ -64,50 +50,55 @@ function Services() {
       stagger: 0.1,
       ease: "power3.out",
       scrollTrigger: {
-        trigger: "#hero-section",
-        start: "top center",
+        trigger: servicesRef.current,
+        start: "top center+=40%",
         toggleActions: "play none none reverse",
       },
     });
 
-    // Text animation
-    gsap.to(textRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      delay: 0.2,
-      scrollTrigger: {
-        trigger: "#hero-section",
-        start: "top center+=20%",
-        toggleActions: "play none none reverse",
+    // Progressive border radius animation
+    gsap.fromTo(
+      servicesRef.current,
+      {
+        borderRadius: "64px", // Start with a larger border radius
       },
-    });
+      {
+        borderRadius: "0px",
+        scrollTrigger: {
+          trigger: servicesRef.current,
+          start: "top bottom", // Start when section becomes visible
+          end: "top top", // End when section reaches top of viewport
+          scrub: 1,
+        },
+      }
+    );
 
-    // Blur animation
+    // Blur animation for hero section
     gsap.to("#hero-section", {
       filter: "blur(10px)",
       scrollTrigger: {
-        trigger: "#hero-section",
-        start: "top top",
-        end: "+=100%",
+        trigger: servicesRef.current,
+        start: "top bottom",
+        end: "top center",
         scrub: 1,
       },
     });
 
-    return () => ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
   }, []);
 
   return (
     <section
       ref={servicesRef}
-      className="fixed top-0 left-0 w-full min-h-screen bg-brand-beige will-change-transform p-10"
-      style={{ zIndex: 10 }}
+      className="w-full min-h-screen bg-brand-beige will-change-transform px-10 pt-20 overflow-hidden"
     >
       <h2
         ref={headingWrapperRef}
         className="text-4xl md:text-5xl lg:text-7xl text-brand-olive mb-12"
       />
-      <ServiceCards/>
+      <ServiceCards />
     </section>
   );
 }
