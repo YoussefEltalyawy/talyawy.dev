@@ -1,6 +1,6 @@
 "use client";
 import Hero from "@/ui/sections/Hero";
-import Projects from "@/ui/sections/Projects";
+import SelectedWorks from "@/ui/sections/SelectedWorks";
 import Services from "@/ui/sections/Services";
 import Lenis from "lenis";
 import { useEffect, useRef } from "react";
@@ -38,7 +38,7 @@ function Home() {
         <Services />
       </div>
       <div className="relative">
-        <Projects />
+        <SelectedWorks />
       </div>
     </main>
   );
