@@ -20,12 +20,12 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: "Salty Cai",
-    category: "Ecomerce & shopify",
+    title: "Salty Cai.",
+    category: "Shopify & E-Commerce",
     brief:
-      "A comprehensive web platform for an engineering firm specializing in architectural solutions.",
+      " A fully customized e-commerce website for an Egyptian fashion brand that blends old-money aesthetics with streetwear. Built using Shopify’s Hydrogen framework, the project covered design, SEO, and full-stack development.",
     video: "/Salty-Home.mp4", // Updated to use video
-    tags: ["DESIGN", "DEVELOPMENT", "2024"],
+    tags: ["SHOPIFY", "E-COMMERCE", "REACT", "HYDROGEN",'FULL-STACK', 'WEB DESIGN'],
   },
   {
     id: 2,
@@ -152,7 +152,7 @@ const SelectedWorks: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 relative">
         {/* Fixed number counter */}
         <div className="lg:sticky lg:top-20 h-fit">
-          <div className="flex text-[200px] lg:text-[300px] font-light leading-none">
+          <div className="flex text-[200px] lg:text-[300px] font-semibold leading-none">
             <span ref={staticDigitRef} className="block">
               0
             </span>
