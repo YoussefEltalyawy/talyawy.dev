@@ -1,4 +1,5 @@
 "use client";
+import CallToAction from "@/ui/sections/CallToAction";
 import Hero from "@/ui/sections/Hero";
 import SelectedWorks from "@/ui/sections/SelectedWorks";
 import Services from "@/ui/sections/Services";
@@ -39,6 +40,9 @@ function Home() {
       </div>
       <div className="relative">
         <SelectedWorks />
+      </div>
+      <div className="realtive">
+        <CallToAction />
       </div>
     </main>
   );
