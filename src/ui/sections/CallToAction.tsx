@@ -122,7 +122,7 @@ const CallToAction: React.FC = () => {
         ref={circleRef}
         className="absolute w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] 
                    md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] 
-                   bg-gradient-to-br from-brand-olive/60 to-brand-olive/40 
+                   bg-gradient-to-br from-brand-olive/80 to-brand-olive/60 
                    rounded-full blur-[100px] sm:blur-[120px] md:blur-[140px] 
                    pointer-events-none transition-all duration-300 ease-out"
       />
