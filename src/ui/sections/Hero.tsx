@@ -1,35 +1,31 @@
-"use client";
 import React, { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { TextReveal } from "@/ui/components/TextReveal";
+import { ANIMATION_CONFIG } from "@/lib/types";
 
-function Hero() {
-  const scopeRef = useRef(null); // Correct scope reference
-  const circleRef = useRef(null);
+export const Hero: React.FC = () => {
+  const scopeRef = useRef<HTMLElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
   const textRefs = {
-    name: useRef(null),
-    role: useRef(null),
-    location: useRef(null),
-    line1: useRef(null),
-    line2: useRef(null),
-    line3: useRef(null),
+    name: useRef<HTMLHeadingElement>(null),
+    role: useRef<HTMLParagraphElement>(null),
+    location: useRef<HTMLParagraphElement>(null),
+    line1: useRef<HTMLParagraphElement>(null),
+    line2: useRef<HTMLParagraphElement>(null),
+    line3: useRef<HTMLParagraphElement>(null),
   };
 
   useGSAP(
     () => {
-      if (!scopeRef.current) return; // Ensure scopeRef is assigned
+      if (!scopeRef.current) return;
 
-      // Create a main timeline for all animations
-      const mainTl = gsap.timeline();
+      const mainTimeline = gsap.timeline();
 
       // Circle animation
-      mainTl.add(() => {
+      mainTimeline.add(() => {
         if (circleRef.current) {
-          gsap.set(circleRef.current, {
-            scale: 0.2,
-            opacity: 0,
-          });
-
+          gsap.set(circleRef.current, { scale: 0.2, opacity: 0 });
           gsap.to(circleRef.current, {
             scale: 1,
             opacity: 1,
@@ -40,15 +36,14 @@ function Hero() {
         }
       });
 
-      // Text animations timeline
-      const textTl = gsap.timeline({
+      // Text animations
+      const textTimeline = gsap.timeline({
         defaults: { duration: 1, ease: "power3.out" },
       });
 
-      // Collect text elements that exist
       const textElements = Object.values(textRefs)
         .map((ref) => ref.current)
-        .filter(Boolean); // Remove null/undefined values
+        .filter(Boolean);
 
       if (textElements.length > 0) {
         gsap.set(textElements, {
@@ -57,8 +52,7 @@ function Hero() {
           filter: "blur(8px)",
         });
 
-        // Text reveal animations
-        textTl
+        textTimeline
           .to(textRefs.name.current, {
             y: 0,
             opacity: 1,
@@ -71,7 +65,7 @@ function Hero() {
               y: 0,
               opacity: 1,
               filter: "blur(0px)",
-              stagger: 0.1,
+              stagger: ANIMATION_CONFIG.stagger,
               duration: 0.8,
             },
             "-=0.7"
@@ -93,10 +87,10 @@ function Hero() {
             "-=0.4"
           );
 
-        mainTl.add(textTl);
+        mainTimeline.add(textTimeline);
       }
     },
-    { scope: scopeRef } // Use correct ref
+    { scope: scopeRef }
   );
 
   return (
@@ -105,74 +99,62 @@ function Hero() {
       id="hero-section"
       className="fixed min-h-screen w-full bg-black overflow-hidden"
     >
+      {/* Background circle */}
       <div
         ref={circleRef}
-        className="absolute bottom-0 left-0 w-96 h-96 bg-brand-olive/60 rounded-full blur-[120px] lg:w-[400px] lg:h-[400px]"
+        className="absolute bottom-0 left-0 w-96 h-96 bg-brand-olive/60 rounded-full blur-[120px] 
+                   lg:w-[400px] lg:h-[400px]"
       />
-      <div className="absolute bottom-24 w-full px-10">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-          <div>
+
+      {/* Content container */}
+      <div className="absolute bottom-12 lg:bottom-24 w-full px-6 md:px-10">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between max-w-8xl mx-auto">
+          {/* Left section */}
+          <div className="mb-6 md:mb-12 lg:mb-0">
             <div className="overflow-hidden">
               <h1
                 ref={textRefs.name}
-                className="text-5xl md:text-7xl lg:text-9xl font-semibold text-brand-beige will-change-transform"
+                className="text-7xl md:text-8xl lg:text-9xl font-semibold text-brand-beige 
+                         will-change-transform tracking-tight"
               >
                 talyawy
               </h1>
             </div>
             <div className="-space-y-1.5">
-              <div className="overflow-hidden">
-                <p
-                  ref={textRefs.role}
-                  className="text-brand-beige text-base lg:text-lg will-change-transform"
-                >
-                  <span className="font-light">Full-Stack </span>
-                  <span className="font-normal">Web Developer & Designer</span>
-                </p>
-              </div>
-              <div className="overflow-hidden">
-                <p
-                  ref={textRefs.location}
-                  className="text-brand-beige text-base lg:text-lg will-change-transform"
-                >
-                  <span className="font-light">Based In </span>
-                  <span className="font-normal">Giza, Egypt</span>
-                </p>
-              </div>
+              <TextReveal ref={textRefs.role}>
+                <span className="font-light">Full-Stack </span>
+                <span className="font-normal">Web Developer & Designer</span>
+              </TextReveal>
+              <TextReveal ref={textRefs.location}>
+                <span className="font-light">Based In </span>
+                <span className="font-normal">Giza, Egypt</span>
+              </TextReveal>
             </div>
           </div>
-          <div className="lg:max-w-lg lg:mr-10">
-            <div className="flex flex-col gap-1 lg:gap-2">
-              <div className="overflow-hidden">
-                <p
-                  ref={textRefs.line1}
-                  className="text-2xl text-left lg:text-right text-brand-beige will-change-transform"
+
+          {/* Right section */}
+          <div className="flex flex-col gap-0 lg:gap-1 opacity-80">
+            {[textRefs.line1, textRefs.line2, textRefs.line3].map(
+              (ref, index) => (
+                <TextReveal
+                  key={index}
+                  ref={ref}
+                  align="right"
+                  className="text-base md:text-2xl leading-tight"
                 >
-                  I craft pixel-perfect web experiences for creators,
-                </p>
-              </div>
-              <div className="overflow-hidden -mt-3">
-                <p
-                  ref={textRefs.line2}
-                  className="text-2xl text-left lg:text-right text-brand-beige will-change-transform"
-                >
-                  startups, and entrepreneurs to boost revenue and
-                </p>
-              </div>
-              <div className="overflow-hidden -mt-3">
-                <p
-                  ref={textRefs.line3}
-                  className="text-2xl text-left lg:text-right text-brand-beige will-change-transform"
-                >
-                  stand out in a crowded market.
-                </p>
-              </div>
-            </div>
+                  {index === 0 &&
+                    "I craft pixel-perfect web experiences for creators,"}
+                  {index === 1 &&
+                    "startups, and entrepreneurs to boost revenue and"}
+                  {index === 2 && "stand out in a crowded market."}
+                </TextReveal>
+              )
+            )}
           </div>
         </div>
       </div>
     </section>
   );
-}
+};
 
 export default Hero;

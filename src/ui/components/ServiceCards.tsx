@@ -1,24 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
+import { Service } from "@/lib/types";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
-
-type ServiceFeature = {
-  id: string;
-  name: string;
-};
-
-type Service = {
-  id: string;
-  number: string;
-  title: string;
-  description: string;
-  features: ServiceFeature[];
-};
-
 const services: Service[] = [
   {
     id: "web-development",
@@ -57,7 +44,6 @@ const services: Service[] = [
     ],
   },
 ];
-
 const ServiceCard: React.FC<{
   service: Service;
   isOpen: boolean;
@@ -82,30 +68,50 @@ const ServiceCard: React.FC<{
       <button
         onClick={onToggle}
         className="w-full text-left py-8 group relative"
+        aria-expanded={isOpen}
       >
         <div className="flex flex-col md:flex-row items-start gap-6">
-          <div className="text-5xl md:text-6xl font-semibold text-brand-olive transition-all duration-500 ease-in-out group-hover:opacity-80 transform group-hover:scale-[0.98]">
+          {/* Service number */}
+          <div
+            className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
+                         transition-all duration-500 ease-in-out group-hover:opacity-80 
+                         transform group-hover:scale-[0.98]"
+          >
             ({number})
           </div>
+
+          {/* Service content */}
           <div className="space-y-4 flex-grow">
-            <h3 className="text-5xl md:text-6xl font-semi-bold text-brand-olive group-hover:opacity-80 transition-all duration-500 ease-in-out transform group-hover:scale-[0.98]">
+            <h3
+              className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
+                         group-hover:opacity-80 transition-all duration-500 ease-in-out 
+                         transform group-hover:scale-[0.98]"
+            >
               {title}
             </h3>
+
+            {/* Expandable content */}
             <div
               ref={contentRef}
               className="overflow-hidden"
               style={{ height: 0 }}
             >
-              <p className="text-lg md:text-xl leading-relaxed text-brand-olive pb-8 transition-all duration-500">
+              <p
+                className="text-lg md:text-xl leading-relaxed text-brand-olive/90 pb-8 
+                           transition-all duration-500"
+              >
                 {description}
               </p>
-              <div className="space-y-3">
+
+              {/* Features list */}
+              <div className="space-y-4">
                 {features.map((feature, index) => (
                   <div
                     key={feature.id}
-                    className="flex items-center gap-3 md:gap-4 transform transition-all duration-500"
+                    className="flex items-center gap-3 md:gap-4 transform transition-all 
+                             duration-500 group-hover:translate-x-2"
                   >
-                    <span className="text-base md:text-lg text-brand-olive opacity-70">
+                    <span className="text-base md:text-lg text-brand-olive/70">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span className="text-lg md:text-xl font-semibold text-brand-olive">
@@ -117,17 +123,20 @@ const ServiceCard: React.FC<{
             </div>
           </div>
         </div>
+
+        {/* Animated underline */}
         <div
-          className={`absolute left-0 bottom-0 h-0.5 bg-brand-olive transform origin-left transition-all duration-700 ease-in-out ${
-            isOpen ? "w-full scale-x-100" : "w-0 scale-x-0"
-          }`}
+          className={`absolute left-0 bottom-0 h-0.5 bg-brand-olive transform origin-left 
+                     transition-all duration-700 ease-in-out ${
+                       isOpen ? "w-full scale-x-100" : "w-0 scale-x-0"
+                     }`}
         />
       </button>
     </div>
   );
 };
 
-const ServiceCards = () => {
+export const ServiceCards: React.FC = () => {
   const [openServiceId, setOpenServiceId] = useState<string | null>(
     "web-development"
   );
@@ -165,7 +174,7 @@ const ServiceCards = () => {
   };
 
   return (
-    <div className="max-w-[95%] mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-[95%] mx-auto">
       <div ref={cardsRef} className="space-y-8">
         {services.map((service) => (
           <ServiceCard
