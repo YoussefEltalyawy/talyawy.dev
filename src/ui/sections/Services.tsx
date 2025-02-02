@@ -4,6 +4,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import ServiceCards from "../components/ServiceCards";
 import { useGSAP } from "@gsap/react";
+import { ANIMATION_CONFIG } from "@/lib/types";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -35,21 +36,21 @@ function Services() {
 
     const spans = headingWrapperRef.current.querySelectorAll("span");
 
-    // Initial states
+    //Animations
     gsap.set(spans, {
       y: 100,
       opacity: 0,
       filter: "blur(8px)",
     });
 
-    // Word-by-word animation
+    // Heading animation
     gsap.to(spans, {
       y: 0,
       opacity: 1,
       filter: "blur(0px)",
-      duration: 0.8,
-      stagger: 0.1,
-      ease: "power3.out",
+      duration: ANIMATION_CONFIG.duration,
+      stagger: ANIMATION_CONFIG.stagger,
+      ease: ANIMATION_CONFIG.ease,
       scrollTrigger: {
         trigger: servicesRef.current,
         start: "top center+=40%",
@@ -57,12 +58,10 @@ function Services() {
       },
     });
 
-    // Progressive border radius animation
+    // Border radius animation
     gsap.fromTo(
       servicesRef.current,
-      {
-        borderRadius: "64px",
-      },
+      { borderRadius: "64px" },
       {
         borderRadius: "0px",
         scrollTrigger: {
@@ -74,7 +73,7 @@ function Services() {
       }
     );
 
-    // Blur animation for hero section
+    // Hero section blur effect
     gsap.to("#hero-section", {
       filter: "blur(10px)",
       scrollTrigger: {
