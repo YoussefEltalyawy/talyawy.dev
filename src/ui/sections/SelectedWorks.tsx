@@ -164,7 +164,7 @@ const SelectedWorks: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen bg-[#001000] text-brand-beige px-4 sm:px-6 md:px-8 lg:px-10 py-12 md:py-16 lg:py-20"
+      className="relative min-h-screen bg-[#063d06] text-brand-beige px-4 sm:px-6 md:px-8 lg:px-10 py-12 md:py-16 lg:py-20"
     >
       <h2
         ref={headingRef}
