@@ -52,20 +52,23 @@ const ServiceCard: React.FC<{
 
   useEffect(() => {
     if (contentRef.current) {
+      // Animate height and opacity as before
       gsap.to(contentRef.current, {
         height: isOpen ? "auto" : 0,
         opacity: isOpen ? 1 : 0,
         duration: 0.6,
         ease: "power3.out",
+        force3D: true,
       });
     }
 
-    // Animate underline subtly on toggle
+    // Animate underline opacity with a slight delay
     if (underlineRef.current) {
       gsap.to(underlineRef.current, {
         opacity: isOpen ? 1 : 0,
         duration: 0.7,
         ease: "power2.out",
+        delay: 0.1,
       });
     }
   }, [isOpen]);
@@ -79,26 +82,20 @@ const ServiceCard: React.FC<{
       >
         <div className="flex flex-col md:flex-row items-start gap-6">
           {/* Service number */}
-          <div
-            className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
-                       transition-colors duration-300"
-          >
+          <div className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive transition-colors duration-300">
             ({number})
           </div>
 
           {/* Service content */}
           <div className="space-y-4 flex-grow">
-            <h3
-              className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
-                         transition-colors duration-300"
-            >
+            <h3 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive transition-colors duration-300">
               {title}
             </h3>
 
             {/* Expandable content */}
             <div
               ref={contentRef}
-              className="overflow-hidden"
+              className="overflow-hidden will-change-height"
               style={{
                 height: 0,
                 opacity: 0,
@@ -131,7 +128,7 @@ const ServiceCard: React.FC<{
         {/* Animated underline */}
         <div
           ref={underlineRef}
-          className="absolute left-0 bottom-0 h-0.5 bg-brand-olive opacity-0"
+          className="absolute left-0 bottom-0 h-0.5 bg-brand-olive opacity-0 will-change-opacity"
         />
       </button>
     </div>
@@ -165,4 +162,3 @@ export const ServiceCards: React.FC = () => {
 };
 
 export default ServiceCards;
-

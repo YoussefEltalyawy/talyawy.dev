@@ -30,3 +30,9 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.will-change-height {
+  will-change: height, opacity;
+}
+.will-change-opacity {
+  will-change: opacity;
+}
