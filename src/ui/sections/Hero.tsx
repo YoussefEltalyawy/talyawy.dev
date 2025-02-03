@@ -107,7 +107,7 @@ export const Hero: React.FC = () => {
       />
 
       {/* Content container */}
-      <div className="absolute bottom-12 lg:bottom-24 w-full px-6 md:px-10">
+      <div className="absolute bottom-24 w-full px-6 md:px-10">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between max-w-8xl mx-auto">
           {/* Left section */}
           <div className="mb-6 md:mb-12 lg:mb-0">

@@ -9,31 +9,31 @@ import Lenis from "lenis";
 import { useEffect, useRef } from "react";
 
 function Home() {
-  const lenis = useRef<Lenis | null>(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  // const lenis = useRef<Lenis | null>(null);
+  // const isMobile = useMediaQuery("(max-width: 768px)");
 
-  useEffect(() => {
-    // Skip smooth scrolling on mobile
-    if (isMobile) return;
+  // useEffect(() => {
+  //   // Skip smooth scrolling on mobile
+  //   if (isMobile) return;
 
-    lenis.current = new Lenis({
-      duration: 0.6,
-      easing: (t: number) => 1 - Math.pow(1 - t, 3),
-      smoothWheel: true,
-    });
+  //   lenis.current = new Lenis({
+  //     duration: 0.6,
+  //     easing: (t: number) => 1 - Math.pow(1 - t, 3),
+  //     smoothWheel: true,
+  //   });
 
-    const animate = (time: number) => {
-      lenis.current?.raf(time);
-      requestAnimationFrame(animate);
-    };
+  //   const animate = (time: number) => {
+  //     lenis.current?.raf(time);
+  //     requestAnimationFrame(animate);
+  //   };
 
-    requestAnimationFrame(animate);
+  //   requestAnimationFrame(animate);
 
-    return () => {
-      lenis.current?.destroy();
-      lenis.current = null;
-    };
-  }, [isMobile]);
+  //   return () => {
+  //     lenis.current?.destroy();
+  //     lenis.current = null;
+  //   };
+  // }, [isMobile]);
 
   return (
     <main className="relative font-[family-name:var(--font-league-spartan)]">
