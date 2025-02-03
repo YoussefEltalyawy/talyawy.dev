@@ -64,39 +64,42 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
     // Create a new animation context
     animationRef.current = gsap.context(() => {
       const timeline = gsap.timeline({
-        defaults: { ease: "power3.out" },
+        defaults: { ease: "power4.out" },
       });
 
       if (contentRef.current && underlineRef.current) {
         timeline
           .to(contentRef.current, {
             height: isOpen ? "auto" : 0,
-            opacity: isOpen ? 1 : 0,
-            duration: 0.6,
+            duration: 0.8,
+            ease: "power3.inOut",
+            onStart: () => {
+              if (contentRef.current) {
+                contentRef.current.style.opacity = "1";
+              }
+            },
           })
           .to(
             underlineRef.current,
             {
               opacity: isOpen ? 1 : 0,
-              duration: 0.4,
-              ease: "power2.out",
+              duration: 0.6,
             },
-            "-=0.3"
-          ); // Slight overlap for smoother feel
+            "-=0.4"
+          );
 
-        // Animate features with stagger if opening
         if (isOpen && contentRef.current) {
           const features = contentRef.current.querySelectorAll(".feature-item");
           timeline.from(
             features,
             {
-              y: 20,
+              y: 40,
               opacity: 0,
-              duration: 0.4,
-              stagger: 0.1,
-              ease: "power2.out",
+              duration: 0.8,
+              stagger: 0.08,
+              ease: "power3.out",
             },
-            "-=0.2"
+            "-=0.4"
           );
         }
       }
@@ -141,27 +144,28 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
             <div
               ref={contentRef}
               className="overflow-hidden"
-              style={{ height: 0, opacity: 0 }}
+              style={{ height: 0 }}
             >
-              <p className="text-lg md:text-xl leading-relaxed text-brand-olive/90 pb-8">
-                {description}
-              </p>
+              <div className="py-8">
+                <p className="text-lg md:text-xl leading-relaxed text-brand-olive/90 mb-8">
+                  {description}
+                </p>
 
-              <div className="space-y-4">
-                {features.map((feature, index) => (
-                  <div
-                    key={feature.id}
-                    className="feature-item flex items-center gap-3 md:gap-4 
-                             transition-transform duration-300"
-                  >
-                    <span className="text-base md:text-lg text-brand-olive/70">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <span className="text-lg md:text-xl font-semibold text-brand-olive">
-                      {feature.name}
-                    </span>
-                  </div>
-                ))}
+                <div className="space-y-4">
+                  {features.map((feature, index) => (
+                    <div
+                      key={feature.id}
+                      className="feature-item flex items-center gap-3 md:gap-4"
+                    >
+                      <span className="text-base md:text-lg text-brand-olive/70">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="text-lg md:text-xl font-semibold text-brand-olive">
+                        {feature.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

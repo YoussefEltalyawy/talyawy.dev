@@ -41,9 +41,9 @@ function Services() {
 
     const spans = headingWrapper.querySelectorAll("span");
     const initialSpanStyles = {
-      y: isMobile ? 20 : 100,
+      y: 100,
       opacity: 0,
-      filter: isMobile ? "none" : "blur(8px)",
+      filter: "blur(8px)",
     };
 
     // Create a context for better memory management
@@ -60,7 +60,7 @@ function Services() {
         },
         defaults: {
           duration: ANIMATION_CONFIG.duration,
-          ease: ANIMATION_CONFIG.ease,
+          ease: "power3.out",
         },
       });
 
@@ -69,7 +69,9 @@ function Services() {
         y: 0,
         opacity: 1,
         filter: "blur(0px)",
-        stagger: isMobile ? 0.05 : ANIMATION_CONFIG.stagger,
+        stagger: ANIMATION_CONFIG.stagger,
+        duration: 1.2,
+        ease: "power4.out",
         onStart: () => {
           spans.forEach((span) => {
             if (span instanceof HTMLElement) {
@@ -87,22 +89,6 @@ function Services() {
       });
 
       if (!isMobile) {
-        // Desktop-only animations
-        const borderRadiusTimeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: services,
-            start: "top bottom",
-            end: "top top",
-            scrub: 1,
-          },
-        });
-
-        borderRadiusTimeline.fromTo(
-          services,
-          { borderRadius: "64px" },
-          { borderRadius: "0px", clearProps: "borderRadius" }
-        );
-
         // Hero section blur effect
         const heroSection = document.querySelector("#hero-section");
         if (heroSection instanceof HTMLElement) {
@@ -130,24 +116,6 @@ function Services() {
           );
         }
       }
-
-      // Service cards animation
-      gsap.utils
-        .toArray<HTMLElement>(".service-card")
-        .forEach((card, index) => {
-          gsap.from(card, {
-            opacity: 0,
-            y: isMobile ? 20 : 50,
-            duration: isMobile ? 0.4 : 0.8,
-            delay: index * (isMobile ? 0.1 : 0.2),
-            scrollTrigger: {
-              trigger: card,
-              start: "top 80%",
-              toggleActions: "play none none reverse",
-            },
-            clearProps: "all",
-          });
-        });
     }, services);
 
     // Cleanup function
@@ -170,5 +138,4 @@ function Services() {
     </section>
   );
 }
-
-export default Services;
+export default Services
