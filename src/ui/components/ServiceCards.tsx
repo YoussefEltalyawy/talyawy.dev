@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { Service } from "@/lib/types";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+// import { useIsMobile } from "@/hooks";
 
 const services: Service[] = [
   {
@@ -45,33 +47,63 @@ const ServiceCard: React.FC<{
   service: Service;
   isOpen: boolean;
   onToggle: () => void;
-}> = ({ service, isOpen, onToggle }) => {
+}> = React.memo(({ service, isOpen, onToggle }) => {
   const { number, title, description, features } = service;
   const contentRef = useRef<HTMLDivElement>(null);
   const underlineRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const animationRef = useRef<gsap.Context | null>(null);
 
   useEffect(() => {
-    if (contentRef.current) {
-      // Animate height and opacity as before
-      gsap.to(contentRef.current, {
-        height: isOpen ? "auto" : 0,
-        opacity: isOpen ? 1 : 0,
-        duration: 0.6,
-        ease: "power3.out",
-        force3D: true,
-      });
+    if (!contentRef.current) return;
+
+    // Kill previous animation if it exists
+    if (animationRef.current) {
+      animationRef.current.kill();
     }
 
-    // Animate underline opacity with a slight delay
-    if (underlineRef.current) {
-      gsap.to(underlineRef.current, {
-        opacity: isOpen ? 1 : 0,
-        duration: 0.7,
-        ease: "power2.out",
-        delay: 0.1,
-      });
-    }
-  }, [isOpen]);
+    // Create a GSAP context for better memory management
+    const ctx = gsap.context(() => {
+      // Simplified animation for mobile
+      if (isMobile) {
+        gsap.to(contentRef.current, {
+          height: isOpen ? "auto" : 0,
+          duration: 0.3,
+          ease: "power2.out",
+          clearProps: isOpen ? "height" : "",
+        });
+      } else {
+        // More elaborate animation for desktop
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out" },
+        });
+
+        tl.to(contentRef.current, {
+          height: isOpen ? "auto" : 0,
+          opacity: isOpen ? 1 : 0,
+          duration: 0.6,
+          force3D: true,
+          clearProps: isOpen ? "height,opacity" : "",
+        });
+
+        if (underlineRef.current) {
+          tl.to(
+            underlineRef.current,
+            {
+              opacity: isOpen ? 1 : 0,
+              duration: 0.4,
+              ease: "power2.out",
+            },
+            "-=0.3"
+          );
+        }
+      }
+    });
+
+    animationRef.current = ctx;
+
+    return () => ctx.kill(); // Cleanup
+  }, [isOpen, isMobile]);
 
   return (
     <div className="border-b border-brand-olive/70">
@@ -81,21 +113,18 @@ const ServiceCard: React.FC<{
         aria-expanded={isOpen}
       >
         <div className="flex flex-col md:flex-row items-start gap-6">
-          {/* Service number */}
           <div className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive transition-colors duration-300">
             ({number})
           </div>
 
-          {/* Service content */}
           <div className="space-y-4 flex-grow">
             <h3 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive transition-colors duration-300">
               {title}
             </h3>
 
-            {/* Expandable content */}
             <div
               ref={contentRef}
-              className="overflow-hidden will-change-height"
+              className="overflow-hidden will-change-[height,opacity]"
               style={{
                 height: 0,
                 opacity: 0,
@@ -105,7 +134,6 @@ const ServiceCard: React.FC<{
                 {description}
               </p>
 
-              {/* Features list */}
               <div className="space-y-4">
                 {features.map((feature, index) => (
                   <div
@@ -125,7 +153,6 @@ const ServiceCard: React.FC<{
           </div>
         </div>
 
-        {/* Animated underline */}
         <div
           ref={underlineRef}
           className="absolute left-0 bottom-0 h-0.5 bg-brand-olive opacity-0 will-change-opacity"
@@ -133,17 +160,18 @@ const ServiceCard: React.FC<{
       </button>
     </div>
   );
-};
+});
+
+ServiceCard.displayName = "ServiceCard";
 
 export const ServiceCards: React.FC = () => {
-  // The first card ("web-development") is toggled open by default.
   const [openServiceId, setOpenServiceId] = useState<string | null>(
     "web-development"
   );
 
-  const toggleService = (serviceId: string) => {
-    setOpenServiceId(openServiceId === serviceId ? null : serviceId);
-  };
+  const toggleService = useCallback((serviceId: string) => {
+    setOpenServiceId((current) => (current === serviceId ? null : serviceId));
+  }, []);
 
   return (
     <div className="max-w-[95%] mx-auto">
