@@ -1,12 +1,12 @@
 // page.tsx
 "use client";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+// import { useMediaQuery } from "@/hooks/useMediaQuery";
 import CallToAction from "@/ui/sections/CallToAction";
 import Hero from "@/ui/sections/Hero";
 import SelectedWorks from "@/ui/sections/SelectedWorks";
 import Services from "@/ui/sections/Services";
-import Lenis from "lenis";
-import { useEffect, useRef } from "react";
+// import Lenis from "lenis";
+// import { useEffect, useRef } from "react";
 
 function Home() {
   // const lenis = useRef<Lenis | null>(null);
