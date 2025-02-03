@@ -89,6 +89,31 @@ function Services() {
       });
 
       if (!isMobile) {
+        // Border radius animation
+        gsap.set(services, {
+          borderRadius: "64px",
+          willChange: "border-radius",
+        });
+
+        const borderRadiusTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: services,
+            start: "top bottom",
+            end: "top top",
+            scrub: 1,
+          },
+        });
+
+        borderRadiusTimeline.to(services, {
+          borderRadius: "0px",
+          ease: "none",
+          onComplete: () => {
+            if (services instanceof HTMLElement) {
+              services.style.willChange = "auto";
+            }
+          },
+        });
+
         // Hero section blur effect
         const heroSection = document.querySelector("#hero-section");
         if (heroSection instanceof HTMLElement) {
@@ -138,4 +163,4 @@ function Services() {
     </section>
   );
 }
-export default Services
+export default Services;
