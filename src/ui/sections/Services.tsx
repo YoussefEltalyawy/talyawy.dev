@@ -1,4 +1,3 @@
-"use client";
 import React, { useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
@@ -7,9 +6,12 @@ import { useGSAP } from "@gsap/react";
 import { ANIMATION_CONFIG } from "@/lib/types";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
+// Register GSAP plugins only once on the client side
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+const HEADING_TEXT = "SERVICES I OFFER";
 
 function Services() {
   const servicesRef = useRef<HTMLElement>(null);
@@ -17,73 +19,49 @@ function Services() {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   useGSAP(() => {
-    if (!headingWrapperRef.current || !servicesRef.current) return;
+    const services = servicesRef.current;
+    const headingWrapper = headingWrapperRef.current;
 
-    // Split heading text into words with proper markup
-    const headingText = "SERVICES I OFFER";
-    const words = headingText.split(" ");
+    if (!services || !headingWrapper) return;
 
-    headingWrapperRef.current.innerHTML = words
+    // Create heading elements with proper markup
+    const words = HEADING_TEXT.split(" ")
       .map(
-        (word, index) => `
-          <div class="inline-block overflow-hidden${
-            index !== words.length - 1 ? " mr-[0.25em]" : ""
-          }">
-            <span class="inline-block">
-              ${word}
-            </span>
-          </div>
-        `
+        (word, index, arr) => `
+      <div class="inline-block overflow-hidden${
+        index !== arr.length - 1 ? " mr-[0.25em]" : ""
+      }">
+        <span class="inline-block">${word}</span>
+      </div>
+    `
       )
       .join("");
 
-    const spans = headingWrapperRef.current.querySelectorAll("span");
+    headingWrapper.innerHTML = words;
 
-    // Create a main timeline for better control and performance
-    const mainTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: servicesRef.current,
-        start: "top center+=40%",
-        toggleActions: "play none none reverse",
-      },
-      defaults: {
-        duration: ANIMATION_CONFIG.duration,
-        ease: ANIMATION_CONFIG.ease,
-      },
-    });
+    const spans = headingWrapper.querySelectorAll("span");
+    const initialSpanStyles = {
+      y: isMobile ? 20 : 100,
+      opacity: 0,
+      filter: isMobile ? "none" : "blur(8px)",
+    };
 
-    if (isMobile) {
-      // Simplified mobile animations
-      gsap.set(spans, { opacity: 0, y: 20 });
+    // Create a context for better memory management
+    const ctx = gsap.context(() => {
+      // Set initial states
+      gsap.set(spans, initialSpanStyles);
 
-      mainTimeline
-        .to(spans, {
-          opacity: 1,
-          y: 0,
-          stagger: 0.05, // Faster stagger on mobile
-          duration: 0.5,
-          clearProps: "all",
-        })
-        .add(() => {
-          // Simple fade in for service cards on mobile
-          gsap.from(".service-card", {
-            opacity: 0,
-            y: 20,
-            duration: 0.4,
-            stagger: 0.1,
-            scrollTrigger: {
-              trigger: ".service-card",
-              start: "top 80%",
-            },
-            clearProps: "all",
-          });
-        });
-    } else {
-      // Desktop animations
-      gsap.set(spans, {
-        y: 100,
-        opacity: 0,
-        filter: "blur(8px)",
+      // Main timeline for heading animation
+      const mainTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: services,
+          start: "top center+=40%",
+          toggleActions: "play none none reverse",
+        },
+        defaults: {
+          duration: ANIMATION_CONFIG.duration,
+          ease: ANIMATION_CONFIG.ease,
+        },
       });
 
       // Heading animation
@@ -91,92 +69,93 @@ function Services() {
         y: 0,
         opacity: 1,
         filter: "blur(0px)",
-        stagger: ANIMATION_CONFIG.stagger,
+        stagger: isMobile ? 0.05 : ANIMATION_CONFIG.stagger,
         onStart: () => {
-          // Apply will-change only during animation
           spans.forEach((span) => {
-            span.style.willChange = "transform, opacity, filter";
+            if (span instanceof HTMLElement) {
+              span.style.willChange = "transform, opacity, filter";
+            }
           });
         },
         onComplete: () => {
-          // Clean up will-change after animation
           spans.forEach((span) => {
-            span.style.willChange = "auto";
+            if (span instanceof HTMLElement) {
+              span.style.willChange = "auto";
+            }
           });
         },
       });
 
-      // Border radius animation with better performance
-      const borderRadiusTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: "top bottom",
-          end: "top top",
-          scrub: 1,
-        },
-      });
+      if (!isMobile) {
+        // Desktop-only animations
+        const borderRadiusTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: services,
+            start: "top bottom",
+            end: "top top",
+            scrub: 1,
+          },
+        });
 
-      borderRadiusTimeline.fromTo(
-        servicesRef.current,
-        { borderRadius: "64px" },
-        {
-          borderRadius: "0px",
-          clearProps: "borderRadius",
-        }
-      );
-
-      // Hero section blur effect optimization
-      const blurTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: servicesRef.current,
-          start: "top bottom",
-          end: "top center",
-          scrub: 1,
-        },
-      });
-
-      const heroSection = document.querySelector("#hero-section");
-      if (heroSection) {
-        // Apply will-change before animation starts
-        heroSection.setAttribute("style", "will-change: filter");
-
-        blurTimeline.fromTo(
-          heroSection,
-          { filter: "blur(0px)" },
-          {
-            filter: "blur(10px)",
-            onComplete: () => {
-              // Remove will-change after animation
-              heroSection.setAttribute("style", "will-change: auto");
-            },
-          }
+        borderRadiusTimeline.fromTo(
+          services,
+          { borderRadius: "64px" },
+          { borderRadius: "0px", clearProps: "borderRadius" }
         );
+
+        // Hero section blur effect
+        const heroSection = document.querySelector("#hero-section");
+        if (heroSection instanceof HTMLElement) {
+          const blurTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: services,
+              start: "top bottom",
+              end: "top center",
+              scrub: 1,
+            },
+          });
+
+          gsap.set(heroSection, { willChange: "filter" });
+          blurTimeline.fromTo(
+            heroSection,
+            { filter: "blur(0px)" },
+            {
+              filter: "blur(10px)",
+              onComplete: () => {
+                if (heroSection instanceof HTMLElement) {
+                  heroSection.style.willChange = "auto";
+                }
+              },
+            }
+          );
+        }
       }
 
-      // Service cards reveal animation
-      const cards = document.querySelectorAll(".service-card");
-      cards.forEach((card, index) => {
-        gsap.from(card, {
-          opacity: 0,
-          y: 50,
-          duration: 0.8,
-          scrollTrigger: {
-            trigger: card,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
-          },
-          delay: index * 0.2,
-          clearProps: "all",
+      // Service cards animation
+      gsap.utils
+        .toArray<HTMLElement>(".service-card")
+        .forEach((card, index) => {
+          gsap.from(card, {
+            opacity: 0,
+            y: isMobile ? 20 : 50,
+            duration: isMobile ? 0.4 : 0.8,
+            delay: index * (isMobile ? 0.1 : 0.2),
+            scrollTrigger: {
+              trigger: card,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+            clearProps: "all",
+          });
         });
-      });
-    }
+    }, services);
 
     // Cleanup function
     return () => {
+      ctx.kill();
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-      mainTimeline.kill();
     };
-  }, [isMobile]); // Re-run when mobile state changes
+  }, [isMobile]);
 
   return (
     <section

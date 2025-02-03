@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, memo } from "react";
 import gsap from "gsap";
 import { Service } from "@/lib/types";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-// import { useIsMobile } from "@/hooks";
 
 const services: Service[] = [
   {
@@ -43,51 +41,40 @@ const services: Service[] = [
   },
 ];
 
-const ServiceCard: React.FC<{
+interface ServiceCardProps {
   service: Service;
   isOpen: boolean;
   onToggle: () => void;
-}> = React.memo(({ service, isOpen, onToggle }) => {
+}
+
+const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   const { number, title, description, features } = service;
   const contentRef = useRef<HTMLDivElement>(null);
   const underlineRef = useRef<HTMLDivElement>(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
   const animationRef = useRef<gsap.Context | null>(null);
 
-  useEffect(() => {
-    if (!contentRef.current) return;
+  const animateContent = useCallback(() => {
+    if (!contentRef.current || !underlineRef.current) return;
 
-    // Kill previous animation if it exists
+    // Kill previous animations if they exist
     if (animationRef.current) {
       animationRef.current.kill();
     }
 
-    // Create a GSAP context for better memory management
-    const ctx = gsap.context(() => {
-      // Simplified animation for mobile
-      if (isMobile) {
-        gsap.to(contentRef.current, {
-          height: isOpen ? "auto" : 0,
-          duration: 0.3,
-          ease: "power2.out",
-          clearProps: isOpen ? "height" : "",
-        });
-      } else {
-        // More elaborate animation for desktop
-        const tl = gsap.timeline({
-          defaults: { ease: "power3.out" },
-        });
+    // Create a new animation context
+    animationRef.current = gsap.context(() => {
+      const timeline = gsap.timeline({
+        defaults: { ease: "power3.out" },
+      });
 
-        tl.to(contentRef.current, {
-          height: isOpen ? "auto" : 0,
-          opacity: isOpen ? 1 : 0,
-          duration: 0.6,
-          force3D: true,
-          clearProps: isOpen ? "height,opacity" : "",
-        });
-
-        if (underlineRef.current) {
-          tl.to(
+      if (contentRef.current && underlineRef.current) {
+        timeline
+          .to(contentRef.current, {
+            height: isOpen ? "auto" : 0,
+            opacity: isOpen ? 1 : 0,
+            duration: 0.6,
+          })
+          .to(
             underlineRef.current,
             {
               opacity: isOpen ? 1 : 0,
@@ -95,40 +82,66 @@ const ServiceCard: React.FC<{
               ease: "power2.out",
             },
             "-=0.3"
+          ); // Slight overlap for smoother feel
+
+        // Animate features with stagger if opening
+        if (isOpen && contentRef.current) {
+          const features = contentRef.current.querySelectorAll(".feature-item");
+          timeline.from(
+            features,
+            {
+              y: 20,
+              opacity: 0,
+              duration: 0.4,
+              stagger: 0.1,
+              ease: "power2.out",
+            },
+            "-=0.2"
           );
         }
       }
     });
 
-    animationRef.current = ctx;
+    return () => {
+      if (animationRef.current) {
+        animationRef.current.kill();
+      }
+    };
+  }, [isOpen]);
 
-    return () => ctx.kill(); // Cleanup
-  }, [isOpen, isMobile]);
+  React.useEffect(() => {
+    animateContent();
+  }, [isOpen, animateContent]);
 
   return (
-    <div className="border-b border-brand-olive/70">
+    <div className="service-card border-b border-brand-olive/70">
       <button
         onClick={onToggle}
-        className="w-full text-left py-8 relative focus:outline-none"
+        className="w-full text-left py-8 relative focus:outline-none 
+                 focus-visible:ring-2 focus-visible:ring-brand-olive/50 
+                 focus-visible:ring-offset-2"
         aria-expanded={isOpen}
       >
         <div className="flex flex-col md:flex-row items-start gap-6">
-          <div className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive transition-colors duration-300">
+          <div
+            className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
+                        transition-colors duration-300"
+          >
             ({number})
           </div>
 
           <div className="space-y-4 flex-grow">
-            <h3 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive transition-colors duration-300">
+            <h3
+              className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
+                          transition-colors duration-300"
+            >
               {title}
             </h3>
 
             <div
               ref={contentRef}
-              className="overflow-hidden will-change-[height,opacity]"
-              style={{
-                height: 0,
-                opacity: 0,
-              }}
+              className="overflow-hidden"
+              style={{ height: 0, opacity: 0 }}
             >
               <p className="text-lg md:text-xl leading-relaxed text-brand-olive/90 pb-8">
                 {description}
@@ -138,7 +151,8 @@ const ServiceCard: React.FC<{
                 {features.map((feature, index) => (
                   <div
                     key={feature.id}
-                    className="flex items-center gap-3 md:gap-4 transition-transform duration-300"
+                    className="feature-item flex items-center gap-3 md:gap-4 
+                             transition-transform duration-300"
                   >
                     <span className="text-base md:text-lg text-brand-olive/70">
                       {String(index + 1).padStart(2, "0")}
@@ -155,7 +169,8 @@ const ServiceCard: React.FC<{
 
         <div
           ref={underlineRef}
-          className="absolute left-0 bottom-0 h-0.5 bg-brand-olive opacity-0 will-change-opacity"
+          className="absolute left-0 bottom-0 h-0.5 bg-brand-olive opacity-0 
+                   w-full transform-gpu"
         />
       </button>
     </div>
@@ -164,13 +179,11 @@ const ServiceCard: React.FC<{
 
 ServiceCard.displayName = "ServiceCard";
 
-export const ServiceCards: React.FC = () => {
-  const [openServiceId, setOpenServiceId] = useState<string | null>(
-    "web-development"
-  );
+const ServiceCards = () => {
+  const [openServiceId, setOpenServiceId] = useState<string>("web-development");
 
   const toggleService = useCallback((serviceId: string) => {
-    setOpenServiceId((current) => (current === serviceId ? null : serviceId));
+    setOpenServiceId((prev) => (prev === serviceId ? "" : serviceId));
   }, []);
 
   return (
@@ -189,4 +202,4 @@ export const ServiceCards: React.FC = () => {
   );
 };
 
-export default ServiceCards;
+export default memo(ServiceCards);
