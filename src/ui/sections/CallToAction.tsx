@@ -16,57 +16,60 @@ const CallToAction: React.FC = () => {
   const buttonRef = useRef<HTMLAnchorElement>(null);
 
   useGSAP(() => {
-    if (!sectionRef.current || !textWrapperRef.current || !circleRef.current)
+    if (
+      !sectionRef.current ||
+      !textWrapperRef.current ||
+      !buttonRef.current ||
+      !circleRef.current
+    )
       return;
 
-    // Create separate elements for each line
+    // Text animation setup (same as Hero)
     textWrapperRef.current.innerHTML = `
       <div class="overflow-hidden">
-        <div class="line will-change-transform">LETS</div>
+        <div class="line">LET'S WORK</div>
       </div>
       <div class="overflow-hidden">
-        <div class="line will-change-transform">WORK</div>
-      </div>
-      <div class="overflow-hidden">
-        <div class="line will-change-transform">TOGETHER</div>
+        <div class="line">TOGETHER</div>
       </div>
     `;
 
     const lines = textWrapperRef.current.querySelectorAll(".line");
+    const buttonContent = buttonRef.current.querySelectorAll(".button-element");
 
-    // Initial states
-    gsap.set(lines, {
-      y: "100%",
+    // Initial states (match Hero's initial setup)
+    gsap.set([lines, buttonContent], {
+      y: 100,
       opacity: 0,
+      filter: "blur(8px)",
     });
 
+    // Circle initial state
     gsap.set(circleRef.current, {
       scale: 1.5,
       opacity: 0,
     });
 
-    gsap.set(buttonRef.current, {
-      y: 50,
-      opacity: 0,
-    });
-
-    // Animations
+    // Create master timeline with scroll trigger
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
         start: "top center+=20%",
+        end: "bottom center",
         toggleActions: "play none none reverse",
       },
     });
 
-    // Staggered line animations
+    // Text animation (identical to Hero's animation)
     tl.to(lines, {
-      y: "0%",
+      y: 0,
       opacity: 1,
+      filter: "blur(0px)",
       duration: 1.2,
-      stagger: 0.1,
-      ease: "power4.out",
+      stagger: 0.08,
+      ease: "power3.out",
     })
+      // Circle animation
       .to(
         circleRef.current,
         {
@@ -77,12 +80,15 @@ const CallToAction: React.FC = () => {
         },
         "-=1"
       )
+      // Button animation (slight delay after text)
       .to(
-        buttonRef.current,
+        buttonContent,
         {
           y: 0,
           opacity: 1,
-          duration: 1,
+          filter: "blur(0px)",
+          duration: 0.9,
+          stagger: 0.04,
           ease: "power3.out",
         },
         "-=1.4"
@@ -117,67 +123,58 @@ const CallToAction: React.FC = () => {
       className="relative min-h-screen bg-black text-brand-beige flex items-center 
                  overflow-hidden px-4 sm:px-8 md:px-12 lg:px-16"
     >
-      {/* Background circle */}
+      {/* Blurry Olive Circle */}
       <div
         ref={circleRef}
         className="absolute w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] 
                    md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] 
-                   bg-gradient-to-br from-brand-olive/80 to-brand-olive/60 
+                   bg-gradient-to-br from-brand-olive/60 to-brand-olive/40 
                    rounded-full blur-[100px] sm:blur-[120px] md:blur-[140px] 
                    pointer-events-none transition-all duration-300 ease-out"
       />
 
       {/* Content container */}
       <div className="relative z-10 w-full max-w-7xl mx-auto">
-        <div className="flex flex-col gap-20 sm:gap-24 md:gap-28 lg:gap-32">
-          {/* Text container */}
+        <div className="flex flex-col gap-12 sm:gap-16 md:gap-20">
+          {/* Text section */}
           <div
             ref={textWrapperRef}
-            className="text-[11vw] sm:text-[10vw] md:text-[9vw] lg:text-[8vw] 
-                       font-bold leading-[0.9] tracking-tight text-left uppercase"
+            className="text-[13vw] sm:text-[11vw] md:text-[9vw] lg:text-[7vw] 
+                       font-bold leading-[0.95] tracking-tight text-center
+                       md:text-left uppercase"
           />
-
-          {/* Email section */}
-          <div className="space-y-4">
-            <p className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 pl-1">
-              Get in touch
-            </p>
-
+          {/* Full-width email button on desktop */}
+          <div className="flex justify-center md:justify-start px-4 overflow-hidden">
             <a
               ref={buttonRef}
               href="mailto:talyawy@proton.me"
-              className="group inline-block"
+              className="group inline-flex items-center gap-4 sm:gap-6
+                       p-4 sm:p-6 rounded-2xl w-full max-w-[800px] md:max-w-none
+                       md:w-full hover:bg-brand-beige/5 transition-colors duration-300"
             >
-              <div className="flex items-center gap-6 sm:gap-8">
+              {/* Animated elements */}
+              <div className="button-element flex-shrink-0 overflow-hidden">
                 <div
-                  className="flex items-center justify-center w-16 h-16 
-                              sm:w-20 sm:h-20 md:w-24 md:h-24 
-                              bg-brand-beige/5 rounded-2xl
-                              group-hover:bg-brand-beige/10 
-                              transition-all duration-500 ease-out"
+                  className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center
+                              bg-brand-beige/5 rounded-xl"
                 >
                   <Mail
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 
-                                 opacity-60 group-hover:opacity-100
-                                 transition-all duration-500"
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-brand-beige
+                             transition-all duration-300"
                   />
                 </div>
+              </div>
 
-                <div className="flex flex-col items-start gap-2">
-                  <span
-                    className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl 
-                                 font-semibold tracking-tight
-                                 transition-transform duration-500 ease-out
-                                 group-hover:translate-x-2"
-                  >
-                    talyawy@proton.me
-                  </span>
-                  <div
-                    className="h-px w-0 bg-brand-beige/40
-                                transition-all duration-700 ease-out
-                                group-hover:w-full"
-                  />
-                </div>
+              <div className="button-element flex flex-col overflow-hidden flex-grow">
+                <span className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 mb-1">
+                  Available for new projects
+                </span>
+                <span
+                  className="text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight
+                           truncate text-brand-beige text-left"
+                >
+                  talyawy@proton.me
+                </span>
               </div>
             </a>
           </div>

@@ -91,7 +91,7 @@ function Services() {
       if (!isMobile) {
         // Border radius animation
         gsap.set(services, {
-          borderRadius: "64px",
+          borderRadius: "48px",
           willChange: "border-radius",
         });
 
