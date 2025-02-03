@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import gsap from "gsap";
-import ScrollTrigger from "gsap/ScrollTrigger";
 import { Service } from "@/lib/types";
 
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 const services: Service[] = [
   {
     id: "web-development",
@@ -44,6 +40,7 @@ const services: Service[] = [
     ],
   },
 ];
+
 const ServiceCard: React.FC<{
   service: Service;
   isOpen: boolean;
@@ -51,6 +48,7 @@ const ServiceCard: React.FC<{
 }> = ({ service, isOpen, onToggle }) => {
   const { number, title, description, features } = service;
   const contentRef = useRef<HTMLDivElement>(null);
+  const underlineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -58,7 +56,16 @@ const ServiceCard: React.FC<{
         height: isOpen ? "auto" : 0,
         opacity: isOpen ? 1 : 0,
         duration: 0.6,
-        ease: "power3.inOut",
+        ease: "power3.out",
+      });
+    }
+
+    // Animate underline subtly on toggle
+    if (underlineRef.current) {
+      gsap.to(underlineRef.current, {
+        opacity: isOpen ? 1 : 0,
+        duration: 0.7,
+        ease: "power2.out",
       });
     }
   }, [isOpen]);
@@ -67,15 +74,14 @@ const ServiceCard: React.FC<{
     <div className="border-b border-brand-olive/70">
       <button
         onClick={onToggle}
-        className="w-full text-left py-8 group relative"
+        className="w-full text-left py-8 relative focus:outline-none"
         aria-expanded={isOpen}
       >
         <div className="flex flex-col md:flex-row items-start gap-6">
           {/* Service number */}
           <div
             className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
-                         transition-all duration-500 ease-in-out group-hover:opacity-80 
-                         transform group-hover:scale-[0.98]"
+                       transition-colors duration-300"
           >
             ({number})
           </div>
@@ -84,8 +90,7 @@ const ServiceCard: React.FC<{
           <div className="space-y-4 flex-grow">
             <h3
               className="text-4xl md:text-5xl lg:text-6xl font-semibold text-brand-olive 
-                         group-hover:opacity-80 transition-all duration-500 ease-in-out 
-                         transform group-hover:scale-[0.98]"
+                         transition-colors duration-300"
             >
               {title}
             </h3>
@@ -94,12 +99,12 @@ const ServiceCard: React.FC<{
             <div
               ref={contentRef}
               className="overflow-hidden"
-              style={{ height: 0 }}
+              style={{
+                height: 0,
+                opacity: 0,
+              }}
             >
-              <p
-                className="text-lg md:text-xl leading-relaxed text-brand-olive/90 pb-8 
-                           transition-all duration-500"
-              >
+              <p className="text-lg md:text-xl leading-relaxed text-brand-olive/90 pb-8">
                 {description}
               </p>
 
@@ -108,8 +113,7 @@ const ServiceCard: React.FC<{
                 {features.map((feature, index) => (
                   <div
                     key={feature.id}
-                    className="flex items-center gap-3 md:gap-4 transform transition-all 
-                             duration-500 group-hover:translate-x-2"
+                    className="flex items-center gap-3 md:gap-4 transition-transform duration-300"
                   >
                     <span className="text-base md:text-lg text-brand-olive/70">
                       {String(index + 1).padStart(2, "0")}
@@ -126,10 +130,8 @@ const ServiceCard: React.FC<{
 
         {/* Animated underline */}
         <div
-          className={`absolute left-0 bottom-0 h-0.5 bg-brand-olive transform origin-left 
-                     transition-all duration-700 ease-in-out ${
-                       isOpen ? "w-full scale-x-100" : "w-0 scale-x-0"
-                     }`}
+          ref={underlineRef}
+          className="absolute left-0 bottom-0 h-0.5 bg-brand-olive opacity-0"
         />
       </button>
     </div>
@@ -137,37 +139,10 @@ const ServiceCard: React.FC<{
 };
 
 export const ServiceCards: React.FC = () => {
+  // The first card ("web-development") is toggled open by default.
   const [openServiceId, setOpenServiceId] = useState<string | null>(
     "web-development"
   );
-  const cardsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!cardsRef.current) return;
-
-    const cards = cardsRef.current.children;
-    const triggers: ScrollTrigger[] = [];
-
-    Array.from(cards).forEach((card, index) => {
-      const trigger = ScrollTrigger.create({
-        trigger: card,
-        start: "top center",
-        end: "bottom center",
-        onEnter: () => {
-          setOpenServiceId(services[index].id);
-        },
-        onEnterBack: () => {
-          setOpenServiceId(services[index].id);
-        },
-      });
-
-      triggers.push(trigger);
-    });
-
-    return () => {
-      triggers.forEach((trigger) => trigger.kill());
-    };
-  }, []);
 
   const toggleService = (serviceId: string) => {
     setOpenServiceId(openServiceId === serviceId ? null : serviceId);
@@ -175,7 +150,7 @@ export const ServiceCards: React.FC = () => {
 
   return (
     <div className="max-w-[95%] mx-auto">
-      <div ref={cardsRef} className="space-y-8">
+      <div className="space-y-8">
         {services.map((service) => (
           <ServiceCard
             key={service.id}
@@ -190,3 +165,4 @@ export const ServiceCards: React.FC = () => {
 };
 
 export default ServiceCards;
+
