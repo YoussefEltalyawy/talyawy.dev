@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/ui/components/TextReveal";
 import { ANIMATION_CONFIG } from "@/lib/animation-config";
 import { animateElements } from "@/lib/animation-utils";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export const Hero: React.FC = () => {
   const scopeRef = useRef<HTMLElement>(null);
@@ -16,13 +17,13 @@ export const Hero: React.FC = () => {
     line2: useRef<HTMLParagraphElement>(null),
     line3: useRef<HTMLParagraphElement>(null),
   };
+  const isMobile = useIsMobile();
 
   useGSAP(
     () => {
       if (!scopeRef.current) return;
 
       const mainTimeline = gsap.timeline();
-      const isMobile = window.innerWidth < 768;
 
       // Set initial states for all elements to ensure they're hidden
       const allTextElements = Object.values(textRefs)
@@ -89,7 +90,7 @@ export const Hero: React.FC = () => {
         .add(descriptionAnimation, "-=0.1"); // Start description slightly before bio finishes
 
     },
-    { scope: scopeRef }
+    { scope: scopeRef, dependencies: [isMobile] }
   );
 
   return (
