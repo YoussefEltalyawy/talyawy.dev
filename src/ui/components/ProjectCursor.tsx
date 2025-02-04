@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 interface ProjectCursorProps {
   isVisible: boolean;
@@ -7,8 +8,11 @@ interface ProjectCursorProps {
 
 const ProjectCursor: React.FC<ProjectCursorProps> = ({ isVisible }) => {
   const cursorRef = useRef<HTMLDivElement>(null);
+  const isDesktop = useMediaQuery('(min-width: 768px)');
 
   useEffect(() => {
+    if (!isDesktop) return; // Skip effect on mobile
+
     const cursor = cursorRef.current;
     if (!cursor) return;
 
@@ -33,7 +37,10 @@ const ProjectCursor: React.FC<ProjectCursorProps> = ({ isVisible }) => {
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
     };
-  }, [isVisible]);
+  }, [isVisible, isDesktop]);
+
+  // Don't render anything on mobile
+  if (!isDesktop) return null;
 
   return (
     <div
