@@ -125,52 +125,63 @@ const CallToAction: React.FC = () => {
       className="relative min-h-screen bg-black text-brand-beige flex items-center 
                  overflow-hidden px-4 sm:px-8 md:px-12 lg:px-16"
     >
-      {/* Blurry Olive Circle */}
+      {/* Enhanced Blurry Olive Circle */}
       <div
         ref={circleRef}
-        className="absolute w-[280px] h-[280px] sm:w-[400px] sm:h-[400px]   
-                   md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] 
-                   bg-gradient-to-br from-brand-olive/60 to-brand-olive/40 
+        className="absolute w-[400px] h-[400px] sm:w-[600px] sm:h-[600px]   
+                   md:w-[800px] md:h-[800px] lg:w-[1000px] lg:h-[1000px] 
+                   bg-gradient-to-br from-brand-olive to-brand-olive/40
                    rounded-full blur-[100px] sm:blur-[120px] md:blur-[140px] 
-                   pointer-events-none transition-all duration-300 ease-out"
+                   pointer-events-none transition-all duration-500 ease-out
+                   mix-blend-screen"
       />
 
       {/* Content container */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto">
-        <div className="flex flex-col gap-12 sm:gap-16 md:gap-20">
+      <div className="relative z-10 w-full max-w-8xl mx-auto">
+        <div className="flex flex-col gap-16 sm:gap-20 md:gap-24">
           {/* Text section */}
           <div
             ref={textWrapperRef}
-            className="text-[13vw] sm:text-[11vw] md:text-[9vw] lg:text-[7vw] 
-                       font-bold leading-[0.95] tracking-tight text-center
+            className="text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] 
+                       font-bold leading-[0.9] tracking-tighter text-center
                        md:text-left uppercase"
           />
-          {/* Full-width email button */}
-          <div className="flex justify-center md:justify-start px-4 overflow-hidden">
+          {/* Enhanced email button */}
+          <div className="flex justify-center md:justify-start overflow-hidden">
             <a
               ref={buttonRef}
               href="mailto:talyawy@proton.me"
-              className="group inline-flex items-center gap-4 sm:gap-6
-                       p-4 sm:p-6 rounded-2xl w-full max-w-[800px] md:max-w-none
-                       md:w-full hover:bg-brand-beige/5 transition-colors duration-300"
+              className="group relative inline-flex items-center gap-6 sm:gap-8
+                       p-6 sm:p-8 rounded-3xl w-full max-w-[800px] md:max-w-none
+                       border border-brand-beige/10 backdrop-blur-sm
+                       hover:border-brand-beige/20 hover:bg-brand-beige/5 
+                       transition-all duration-500 ease-out"
             >
               <div className="button-element flex-shrink-0 overflow-hidden">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center
-                              bg-brand-beige/5 rounded-xl">
-                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-brand-beige
-                             transition-all duration-300" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center
+                              bg-gradient-to-br from-brand-olive/20 to-brand-beige/5
+                              rounded-2xl group-hover:scale-105 transition-transform duration-500">
+                  <Mail className="w-8 h-8 sm:w-10 sm:h-10 text-brand-beige
+                                 group-hover:scale-110 transition-all duration-500" />
                 </div>
               </div>
 
               <div className="button-element flex flex-col overflow-hidden flex-grow">
-                <span className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 mb-1">
+                <span className="text-sm sm:text-base uppercase tracking-widest 
+                               text-brand-beige/60 mb-2 font-light">
                   Available for new projects
                 </span>
                 <span className="text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight
-                           truncate text-brand-beige text-left">
+                               text-brand-beige text-left transition-colors duration-500
+                               group-hover:text-white">
                   talyawy@proton.me
                 </span>
               </div>
+
+              {/* Hover gradient overlay */}
+              <div className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100
+                            bg-gradient-to-r from-brand-olive/10 to-transparent
+                            rounded-3xl transition-opacity duration-500" />
             </a>
           </div>
         </div>
