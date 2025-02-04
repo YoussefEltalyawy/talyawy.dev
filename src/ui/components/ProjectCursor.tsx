@@ -3,11 +3,9 @@ import gsap from 'gsap';
 
 interface ProjectCursorProps {
   isVisible: boolean;
-  projectUrl: string;
-  projectTitle: string;
 }
 
-const ProjectCursor: React.FC<ProjectCursorProps> = ({ isVisible, projectUrl, projectTitle }) => {
+const ProjectCursor: React.FC<ProjectCursorProps> = ({ isVisible }) => {
   const cursorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

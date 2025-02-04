@@ -201,11 +201,7 @@ const SelectedWorks: React.FC = () => {
 
   return (
     <>
-      <ProjectCursor
-        isVisible={activeProject !== null}
-        projectUrl={activeProject?.url || ''}
-        projectTitle={activeProject?.title || ''}
-      />
+      <ProjectCursor isVisible={activeProject !== null} />
       <section
         ref={sectionRef}
         className="relative min-h-screen bg-brand-olive text-brand-beige px-4 sm:px-6 md:px-8 lg:px-10 py-12 md:py-16 lg:py-20"
