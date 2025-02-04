@@ -1,10 +1,28 @@
-import React, { useRef } from "react";
+import React, { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/ui/components/TextReveal";
-import { ANIMATION_CONFIG } from "@/lib/animation-config";
-import { animateElements } from "@/lib/animation-utils";
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import clsx from "clsx";
+
+const ANIMATION_CONFIG = {
+  duration: {
+    fast: 0.3,
+    medium: 0.5,
+    slow: 0.7,
+    extraSlow: 0.9
+  },
+  ease: {
+    smooth: "power2.out",
+    gentle: "power1.inOut",
+    snappy: "power3.out",
+    textReveal: "power2.out"
+  },
+  stagger: {
+    text: 0.08,
+    elements: 0.15
+  }
+};
 
 export const Hero: React.FC = () => {
   const scopeRef = useRef<HTMLElement>(null);
@@ -17,81 +35,127 @@ export const Hero: React.FC = () => {
     line2: useRef<HTMLParagraphElement>(null),
     line3: useRef<HTMLParagraphElement>(null),
   };
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
-  useGSAP(
-    () => {
-      if (!scopeRef.current) return;
+  // Set initial states
+  useLayoutEffect(() => {
+    if (!scopeRef.current) return;
 
-      const mainTimeline = gsap.timeline();
+    // Hide all text elements
+    Object.values(textRefs).forEach(ref => {
+      if (ref.current) {
+        gsap.set(ref.current, {
+          autoAlpha: 0,
+          y: isMobile ? 15 : 30,
+          filter: ref === textRefs.name ? "blur(8px)" : "none"
+        });
+      }
+    });
 
-      // Set initial states for all elements to ensure they're hidden
-      const allTextElements = Object.values(textRefs)
-        .map((ref) => ref.current)
-        .filter(Boolean);
-
-      gsap.set(allTextElements, {
-        y: 100,
-        opacity: 0,
-        filter: isMobile ? "none" : ANIMATION_CONFIG.blur.desktop.start,
-      });
-
+    // Set circle initial state
+    if (circleRef.current) {
       gsap.set(circleRef.current, {
+        autoAlpha: 0,
         scale: 0.2,
-        opacity: 0,
+        transformOrigin: "left bottom",
       });
+    }
+  }, [isMobile]);
 
-      // 1. Circle animation (starts the sequence)
-      const circleAnimation = gsap.timeline()
-        .to(circleRef.current, {
+  // Main animation
+  useGSAP(() => {
+    if (!scopeRef.current) return;
+
+    const ctx = gsap.context(() => {
+      // Reset any existing animations
+      gsap.killTweensOf(Object.values(textRefs).map(ref => ref.current));
+      gsap.killTweensOf(circleRef.current);
+
+      if (isMobile) {
+        // Mobile animations - simple and sequential
+        const duration = 0.5;
+        const ease = "power2.out";
+
+        gsap.to(circleRef.current, {
+          autoAlpha: 0.6,
           scale: 1,
-          opacity: isMobile ? 0.6 : 0.8,
-          duration: isMobile ? ANIMATION_CONFIG.duration.slow : ANIMATION_CONFIG.duration.extraSlow,
+          duration: ANIMATION_CONFIG.duration.slow,
           ease: ANIMATION_CONFIG.ease.gentle,
-          transformOrigin: "left bottom",
         });
 
-      // 2. Name animation (the main title)
-      const nameAnimation = animateElements({
-        elements: textRefs.name.current,
-        duration: ANIMATION_CONFIG.duration.extraSlow,
-        ease: ANIMATION_CONFIG.ease.textReveal,
-        useBlur: !isMobile,
-        willChange: ["transform", "opacity", "filter"],
-      });
+        gsap.to(textRefs.name.current, {
+          autoAlpha: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: duration,
+          delay: 0.2,
+          ease: ease,
+        });
 
-      // 3. Role and location animation (secondary info)
-      const bioAnimation = animateElements({
-        elements: [textRefs.role.current, textRefs.location.current],
-        duration: ANIMATION_CONFIG.duration.medium,
-        stagger: isMobile ? ANIMATION_CONFIG.stagger.mobile.text : ANIMATION_CONFIG.stagger.desktop.text,
-        ease: ANIMATION_CONFIG.ease.textReveal,
-        useBlur: !isMobile,
-      });
+        const bioElements = [textRefs.role.current, textRefs.location.current];
+        bioElements.forEach((el, i) => {
+          gsap.to(el, {
+            autoAlpha: 1,
+            y: 0,
+            duration: duration,
+            delay: 0.3 + (i * 0.1),
+            ease: ease,
+          });
+        });
 
-      // 4. Description lines animation (final elements)
-      const descriptionAnimation = animateElements({
-        elements: [
-          textRefs.line1.current,
-          textRefs.line2.current,
-          textRefs.line3.current,
-        ],
-        duration: ANIMATION_CONFIG.duration.medium,
-        stagger: isMobile ? ANIMATION_CONFIG.stagger.mobile.text : ANIMATION_CONFIG.stagger.desktop.text,
-        ease: ANIMATION_CONFIG.ease.textReveal,
-        useBlur: !isMobile,
-      });
+        const descElements = [textRefs.line1.current, textRefs.line2.current, textRefs.line3.current];
+        descElements.forEach((el, i) => {
+          gsap.to(el, {
+            autoAlpha: 1,
+            y: 0,
+            duration: duration,
+            delay: 0.5 + (i * 0.1),
+            ease: ease,
+          });
+        });
+      } else {
+        // Desktop animations - dynamic and overlapping
+        const tl = gsap.timeline();
 
-      // Build the sequence with proper timing
-      mainTimeline
-        .add(circleAnimation)
-        .add(nameAnimation, "-=0.4") // Start name animation before circle finishes
-        .add(bioAnimation, "-=0.2") // Start bio slightly before name finishes
-        .add(descriptionAnimation, "-=0.1"); // Start description slightly before bio finishes
+        // Circle animation
+        tl.to(circleRef.current, {
+          autoAlpha: 0.8,
+          scale: 1,
+          duration: ANIMATION_CONFIG.duration.extraSlow,
+          ease: ANIMATION_CONFIG.ease.gentle,
+        });
 
-    },
-    { scope: scopeRef, dependencies: [isMobile] }
-  );
+        // Name animation with blur
+        tl.to(textRefs.name.current, {
+          autoAlpha: 1,
+          y: 0,
+          duration: ANIMATION_CONFIG.duration.slow,
+          ease: ANIMATION_CONFIG.ease.textReveal,
+          filter: "blur(0px)",
+        }, "-=0.4");
+
+        // Bio animations
+        tl.to([textRefs.role.current, textRefs.location.current], {
+          autoAlpha: 1,
+          y: 0,
+          duration: ANIMATION_CONFIG.duration.medium,
+          stagger: ANIMATION_CONFIG.stagger.text,
+          ease: ANIMATION_CONFIG.ease.textReveal,
+        }, "-=0.3");
+
+        // Description animations
+        tl.to([textRefs.line1.current, textRefs.line2.current, textRefs.line3.current], {
+          autoAlpha: 1,
+          y: 0,
+          duration: ANIMATION_CONFIG.duration.medium,
+          stagger: ANIMATION_CONFIG.stagger.text,
+          ease: ANIMATION_CONFIG.ease.textReveal,
+        }, "-=0.2");
+      }
+    }, scopeRef);
+
+    return () => ctx.revert();
+  }, [isMobile]);
 
   return (
     <section
@@ -102,9 +166,15 @@ export const Hero: React.FC = () => {
       {/* Background circle */}
       <div
         ref={circleRef}
-        className="absolute bottom-0 left-0 w-96 h-96 bg-brand-olive/60 rounded-full 
-                   blur-[60px] md:blur-[120px] lg:w-[400px] lg:h-[400px]
-                   opacity-0" // Add initial opacity-0 to prevent flash
+        className={clsx(
+          "absolute bottom-0 left-0",
+          "w-96 h-96 lg:w-[400px] lg:h-[400px]",
+          "bg-brand-olive/60 rounded-full opacity-0",
+          "transform-gpu",
+          isMobile
+            ? "blur-[60px] md:blur-[80px]"
+            : "blur-[60px] md:blur-[120px]"
+        )}
       />
 
       {/* Content container */}
@@ -116,18 +186,18 @@ export const Hero: React.FC = () => {
               <h1
                 ref={textRefs.name}
                 className="text-7xl md:text-8xl lg:text-9xl font-semibold text-brand-beige 
-                         will-change-[transform,opacity,filter] tracking-tight
-                         opacity-0" // Add initial opacity-0 to prevent flash
+                         tracking-tight opacity-0 transform-gpu"
+                style={{ filter: "blur(8px)" }}
               >
                 talyawy
               </h1>
             </div>
             <div className="-space-y-1.5">
-              <TextReveal ref={textRefs.role} className="opacity-0">
+              <TextReveal ref={textRefs.role} className="opacity-0 transform-gpu">
                 <span className="font-light">Full-Stack </span>
                 <span className="font-normal">Web Developer & Designer</span>
               </TextReveal>
-              <TextReveal ref={textRefs.location} className="opacity-0">
+              <TextReveal ref={textRefs.location} className="opacity-0 transform-gpu">
                 <span className="font-light">Based In </span>
                 <span className="font-normal">Giza, Egypt</span>
               </TextReveal>
@@ -142,7 +212,7 @@ export const Hero: React.FC = () => {
                   key={index}
                   ref={ref}
                   align="right"
-                  className="text-base md:text-2xl leading-tight opacity-0"
+                  className="text-base md:text-2xl leading-tight opacity-0 transform-gpu"
                 >
                   {index === 0 &&
                     "I craft pixel-perfect web experiences for creators,"}

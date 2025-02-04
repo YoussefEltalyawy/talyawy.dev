@@ -1,10 +1,10 @@
-import React, { useRef } from "react";
+import React, { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import ServiceCards from "../components/ServiceCards";
 import { useGSAP } from "@gsap/react";
 import { ANIMATION_CONFIG } from "@/lib/animation-config";
-import { animateElements } from "@/lib/animation-utils";
+import { animateElements, createScrollTrigger } from "@/lib/animation-utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // Register GSAP plugins only once on the client side
@@ -19,18 +19,27 @@ function Services() {
   const headingWrapperRef = useRef<HTMLHeadingElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
+  // Pre-hide elements to prevent flash
+  useLayoutEffect(() => {
+    if (!headingWrapperRef.current) return;
+    gsap.set(headingWrapperRef.current.querySelectorAll("span"), {
+      opacity: 0,
+      y: 40,
+    });
+  }, []);
+
   useGSAP(() => {
     const services = servicesRef.current;
     const headingWrapper = headingWrapperRef.current;
 
     if (!services || !headingWrapper) return;
 
-    // Create heading elements with proper markup
+    // Create heading elements with proper markup and performance attributes
     const words = HEADING_TEXT.split(" ")
       .map(
         (word, index, arr) => `
       <div class="inline-block overflow-hidden${index !== arr.length - 1 ? " mr-[0.25em]" : ""}">
-        <span class="inline-block">${word}</span>
+        <span class="inline-block will-change-[transform,opacity]">${word}</span>
       </div>
     `
       )
@@ -42,12 +51,12 @@ function Services() {
 
     // Create a context for better memory management
     const ctx = gsap.context(() => {
-      // Main timeline for heading animation
+      // Main timeline for heading animation with optimized settings
       const mainTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: services,
-          start: isMobile ? "top center+=20%" : "top center+=40%",
-          toggleActions: "play none none reverse",
+        paused: true,
+        defaults: {
+          duration: isMobile ? ANIMATION_CONFIG.duration.medium : ANIMATION_CONFIG.duration.slow,
+          ease: ANIMATION_CONFIG.ease.textReveal,
         },
       });
 
@@ -57,37 +66,47 @@ function Services() {
         duration: isMobile ? ANIMATION_CONFIG.duration.medium : ANIMATION_CONFIG.duration.slow,
         ease: ANIMATION_CONFIG.ease.textReveal,
         useBlur: !isMobile,
+        willChange: ["transform", "opacity"],
       });
 
       mainTimeline.add(headingAnimation);
 
+      // Create scroll trigger with optimized settings
+      createScrollTrigger(services, mainTimeline, {
+        start: isMobile ? "top center+=10%" : "top center+=30%",
+      });
+
       if (!isMobile) {
-        // Border radius animation - only on desktop
+        // Border radius animation - only on desktop with optimized performance
         const borderRadiusTimeline = gsap.timeline({
           scrollTrigger: {
             trigger: services,
             start: "top bottom",
             end: "top top",
             scrub: 1,
+            onEnter: () => {
+              if (services instanceof HTMLElement) {
+                services.style.willChange = "border-radius";
+              }
+            },
+            onLeave: () => {
+              if (services instanceof HTMLElement) {
+                services.style.willChange = "auto";
+              }
+            },
           },
         });
 
         gsap.set(services, {
           borderRadius: "48px",
-          willChange: "border-radius",
         });
 
         borderRadiusTimeline.to(services, {
           borderRadius: "0px",
           ease: "none",
-          onComplete: () => {
-            if (services instanceof HTMLElement) {
-              services.style.willChange = "auto";
-            }
-          },
         });
 
-        // Hero section blur effect - only on desktop
+        // Hero section blur effect - only on desktop with optimized performance
         const heroSection = document.querySelector("#hero-section");
         if (heroSection instanceof HTMLElement) {
           const blurTimeline = gsap.timeline({
@@ -96,23 +115,23 @@ function Services() {
               start: "top bottom",
               end: "top center",
               scrub: 1,
+              onEnter: () => {
+                if (heroSection instanceof HTMLElement) {
+                  heroSection.style.willChange = "filter";
+                }
+              },
+              onLeave: () => {
+                if (heroSection instanceof HTMLElement) {
+                  heroSection.style.willChange = "auto";
+                }
+              },
             },
           });
 
           blurTimeline.fromTo(
             heroSection,
-            {
-              filter: "blur(0px)",
-              willChange: "filter"
-            },
-            {
-              filter: "blur(8px)",
-              onComplete: () => {
-                if (heroSection instanceof HTMLElement) {
-                  heroSection.style.willChange = "auto";
-                }
-              },
-            }
+            { filter: "blur(0px)" },
+            { filter: "blur(8px)" }
           );
         }
       }

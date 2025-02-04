@@ -2,10 +2,22 @@ import gsap from "gsap";
 import { ANIMATION_CONFIG } from "./animation-config";
 import { ScrollTrigger } from "gsap/all";
 
-// Helper to detect mobile
+// Optimize mobile detection with a single source of truth
+let _isMobile: boolean | null = null;
 const isMobile = () => {
   if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768;
+  if (_isMobile === null) {
+    _isMobile = window.innerWidth < 768;
+    // Update on resize with debounce
+    let resizeTimeout: NodeJS.Timeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        _isMobile = window.innerWidth < 768;
+      }, 250);
+    });
+  }
+  return _isMobile;
 };
 
 interface AnimateElementsProps {
@@ -19,6 +31,9 @@ interface AnimateElementsProps {
   useBlur?: boolean;
 }
 
+// Cache commonly used values
+const defaultWillChange = ["transform", "opacity"];
+
 export const animateElements = ({
   elements,
   fromVars = {},
@@ -26,68 +41,73 @@ export const animateElements = ({
   stagger,
   duration = ANIMATION_CONFIG.duration.medium,
   ease = ANIMATION_CONFIG.ease.smooth,
-  willChange = ["transform", "opacity"],
+  willChange = defaultWillChange,
   useBlur = true
 }: AnimateElementsProps) => {
   const mobile = isMobile();
   const targets = gsap.utils.toArray(elements);
   
-  // Determine stagger based on device
-  const defaultStagger = mobile 
+  // Early exit for empty targets
+  if (!targets.length) return gsap.timeline();
+
+  const finalStagger = stagger ?? (mobile 
     ? ANIMATION_CONFIG.stagger.mobile.text 
-    : ANIMATION_CONFIG.stagger.desktop.text;
-  
-  const finalStagger = stagger ?? defaultStagger;
+    : ANIMATION_CONFIG.stagger.desktop.text);
 
-  // Optimize performance by batching GPU-accelerated properties
-  const optimizedWillChange = mobile 
-    ? willChange.filter(prop => prop !== 'filter') // Remove filter on mobile if present
-    : willChange;
-
-  // Set will-change
-  gsap.set(targets, {
-    willChange: optimizedWillChange.join(", ")
-  });
-
-  // Create timeline with reduced memory footprint
+  // Create a single timeline
   const tl = gsap.timeline({
-    onComplete: () => {
-      // Clean up will-change
-      gsap.set(targets, { 
-        willChange: "auto",
-        clearProps: mobile ? "filter" : "" // Clear filter props on mobile after animation
-      });
-    }
+    paused: true,
   });
 
-  // Get blur settings based on device
-  const blurConfig = mobile 
-    ? ANIMATION_CONFIG.blur.mobile 
-    : ANIMATION_CONFIG.blur.desktop;
+  // Simplified animation for mobile
+  if (mobile) {
+    // Simple fade up animation for mobile
+    tl.fromTo(targets, 
+      {
+        opacity: 0,
+        y: 15,
+        ...fromVars
+      },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        stagger: finalStagger,
+        ease: "power1.out",
+        ...toVars
+      }
+    );
+  } else {
+    // Desktop animation with all features
+    const blurConfig = ANIMATION_CONFIG.blur.desktop;
 
-  // Set initial state
-  const initialState = {
-    opacity: ANIMATION_CONFIG.defaults.opacity.from,
-    y: mobile ? ANIMATION_CONFIG.defaults.y.from * 0.7 : ANIMATION_CONFIG.defaults.y.from, // Reduced travel on mobile
-    ...(useBlur && !mobile ? { filter: blurConfig.start } : {}),
-    ...fromVars
-  };
+    tl.set(targets, {
+      opacity: 0,
+      y: ANIMATION_CONFIG.defaults.y.from,
+      willChange: willChange.join(", "),
+      ...(useBlur ? { filter: blurConfig.start } : {}),
+      ...fromVars
+    });
 
-  tl.set(targets, initialState);
+    tl.to(targets, {
+      opacity: 1,
+      y: 0,
+      duration: duration,
+      stagger: finalStagger,
+      ease: ease,
+      ...(useBlur ? { filter: blurConfig.end } : {}),
+      ...toVars,
+      onComplete: () => {
+        gsap.set(targets, {
+          willChange: "auto",
+          clearProps: "filter"
+        });
+      }
+    });
+  }
 
-  // Animate to final state with optimized settings
-  const finalState = {
-    opacity: ANIMATION_CONFIG.defaults.opacity.to,
-    y: ANIMATION_CONFIG.defaults.y.to,
-    duration: mobile ? duration * 0.8 : duration, // Slightly faster on mobile
-    stagger: finalStagger,
-    ease,
-    ...(useBlur && !mobile ? { filter: blurConfig.end } : {}),
-    ...toVars
-  };
-
-  tl.to(targets, finalState);
-
+  // Play immediately but allow for manual control
+  tl.play();
   return tl;
 };
 
@@ -100,12 +120,24 @@ export const createScrollTrigger = (
   
   return ScrollTrigger.create({
     trigger,
-    start: mobile ? "top center+=10%" : "top center+=20%", // Adjusted trigger point for mobile
+    start: mobile ? "top center+=5%" : "top center+=15%",
     toggleActions: "play none none reverse",
     animation,
-    // Optimize performance on mobile
-    fastScrollEnd: mobile,
+    // Optimize performance
+    fastScrollEnd: true,
     preventOverlaps: true,
+    onEnter: () => {
+      // Add will-change only when animation is about to start
+      if (trigger instanceof HTMLElement) {
+        trigger.style.willChange = mobile ? "transform" : "transform, opacity, filter";
+      }
+    },
+    onLeave: () => {
+      // Clean up will-change when scrolled away
+      if (trigger instanceof HTMLElement) {
+        trigger.style.willChange = "auto";
+      }
+    },
     ...options
   });
 }; 

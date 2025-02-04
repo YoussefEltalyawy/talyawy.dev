@@ -1,22 +1,22 @@
 export const ANIMATION_CONFIG = {
   duration: {
-    fast: 0.25,
-    medium: 0.5,
-    slow: 0.75,
-    extraSlow: 1
+    fast: 0.2,
+    medium: 0.4,
+    slow: 0.6,
+    extraSlow: 0.8
   },
   ease: {
     smooth: "power2.out",
-    snappy: "power2.out",
+    snappy: "power3.out",
     bounce: "back.out(1.2)",
     gentle: "power1.inOut",
     textReveal: "power2.out"
   },
   stagger: {
     mobile: {
-      text: 0.04,
-      elements: 0.08,
-      cards: 0.12
+      text: 0.03,
+      elements: 0.06,
+      cards: 0.09
     },
     desktop: {
       text: 0.08,
@@ -26,7 +26,7 @@ export const ANIMATION_CONFIG = {
   },
   blur: {
     mobile: {
-      start: "blur(4px)",
+      start: "blur(2px)",
       end: "blur(0px)"
     },
     desktop: {
@@ -40,7 +40,7 @@ export const ANIMATION_CONFIG = {
       to: 1
     },
     y: {
-      from: 50,
+      from: 40,
       to: 0
     }
   }
