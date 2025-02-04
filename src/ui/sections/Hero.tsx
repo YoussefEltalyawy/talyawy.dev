@@ -2,7 +2,8 @@ import React, { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/ui/components/TextReveal";
-import { ANIMATION_CONFIG } from "@/lib/types";
+import { ANIMATION_CONFIG } from "@/lib/animation-config";
+import { animateElements } from "@/lib/animation-utils";
 
 export const Hero: React.FC = () => {
   const scopeRef = useRef<HTMLElement>(null);
@@ -22,73 +23,81 @@ export const Hero: React.FC = () => {
 
       const mainTimeline = gsap.timeline();
 
+      // Set initial state for all elements
+      const allTextElements = Object.values(textRefs)
+        .map((ref) => ref.current)
+        .filter(Boolean);
+
+      gsap.set(allTextElements, {
+        y: 100,
+        opacity: 0,
+        filter: ANIMATION_CONFIG.blur.start,
+      });
+
+      gsap.set(circleRef.current, { 
+        scale: 0.2, 
+        opacity: 0 
+      });
+
       // Circle animation
       mainTimeline.add(() => {
         if (circleRef.current) {
-          gsap.set(circleRef.current, { scale: 0.2, opacity: 0 });
           gsap.to(circleRef.current, {
             scale: 1,
             opacity: 1,
-            duration: 1.8,
-            ease: "power2.out",
+            duration: ANIMATION_CONFIG.duration.extraSlow,
+            ease: ANIMATION_CONFIG.ease.gentle,
             transformOrigin: "left bottom",
           });
         }
       });
 
-      // Text animations
-      const textTimeline = gsap.timeline({
-        defaults: { duration: 1, ease: "power3.out" },
+      // Name animation
+      const nameAnimation = animateElements({
+        elements: textRefs.name.current,
+        toVars: {
+          y: 0,
+          opacity: 1,
+          filter: ANIMATION_CONFIG.blur.end,
+        },
+        duration: ANIMATION_CONFIG.duration.extraSlow,
+        ease: ANIMATION_CONFIG.ease.textReveal,
       });
 
-      const textElements = Object.values(textRefs)
-        .map((ref) => ref.current)
-        .filter(Boolean);
+      // Role and location animation
+      const roleLocationAnimation = animateElements({
+        elements: [textRefs.role.current, textRefs.location.current].filter(Boolean),
+        toVars: {
+          y: 0,
+          opacity: 1,
+          filter: ANIMATION_CONFIG.blur.end,
+        },
+        duration: ANIMATION_CONFIG.duration.medium,
+        stagger: ANIMATION_CONFIG.stagger.text,
+        ease: ANIMATION_CONFIG.ease.textReveal,
+      });
 
-      if (textElements.length > 0) {
-        gsap.set(textElements, {
-          y: 100,
-          opacity: 0,
-          filter: "blur(8px)",
-        });
+      // Description lines animation
+      const descriptionAnimation = animateElements({
+        elements: [
+          textRefs.line1.current,
+          textRefs.line2.current,
+          textRefs.line3.current,
+        ].filter(Boolean),
+        toVars: {
+          y: 0,
+          opacity: 1,
+          filter: ANIMATION_CONFIG.blur.end,
+        },
+        duration: ANIMATION_CONFIG.duration.slow,
+        stagger: ANIMATION_CONFIG.stagger.text,
+        ease: ANIMATION_CONFIG.ease.textReveal,
+      });
 
-        textTimeline
-          .to(textRefs.name.current, {
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 1.2,
-          })
-          .to(
-            [textRefs.role.current, textRefs.location.current].filter(Boolean),
-            {
-              y: 0,
-              opacity: 1,
-              filter: "blur(0px)",
-              stagger: ANIMATION_CONFIG.stagger,
-              duration: 0.8,
-            },
-            "-=0.7"
-          )
-          .to(
-            [
-              textRefs.line1.current,
-              textRefs.line2.current,
-              textRefs.line3.current,
-            ].filter(Boolean),
-            {
-              y: 0,
-              opacity: 1,
-              filter: "blur(0px)",
-              stagger: 0.15,
-              duration: 1,
-              ease: "power4.out",
-            },
-            "-=0.4"
-          );
-
-        mainTimeline.add(textTimeline);
-      }
+      mainTimeline
+        .add(nameAnimation)
+        .add(roleLocationAnimation, "-=0.7")
+        .add(descriptionAnimation, "-=0.4");
     },
     { scope: scopeRef }
   );

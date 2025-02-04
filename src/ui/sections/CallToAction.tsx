@@ -6,7 +6,6 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import { Mail } from "lucide-react";
 import { ANIMATION_CONFIG } from "@/lib/animation-config";
 import { animateElements, createScrollTrigger } from "@/lib/animation-utils";
-import { throttle } from "lodash";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -94,8 +93,8 @@ const CallToAction: React.FC = () => {
       .add(circleAnimation, "-=1")
       .add(buttonAnimation, "-=1.4");
 
-    // Optimize mouse movement effect
-    const handleMouseMove = throttle((e: MouseEvent) => {
+    // Mouse movement effect
+    const handleMouseMove = (e: MouseEvent) => {
       if (!sectionRef.current || !circleRef.current) return;
 
       const { clientX, clientY } = e;
@@ -106,10 +105,10 @@ const CallToAction: React.FC = () => {
       gsap.to(circleRef.current, {
         x,
         y,
-        duration: ANIMATION_CONFIG.duration.medium,
-        ease: ANIMATION_CONFIG.ease.gentle,
+        duration: 1,
+        ease: "power2.out",
       });
-    }, 1000/60); // Throttle to 60fps
+    };
 
     sectionRef.current.addEventListener("mousemove", handleMouseMove);
     
