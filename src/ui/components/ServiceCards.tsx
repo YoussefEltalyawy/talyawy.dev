@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, memo, useLayoutEffect } from "rea
 import gsap from "gsap";
 import { Service } from "@/lib/types";
 import { ChevronDown } from "lucide-react";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 const services: Service[] = [
   {

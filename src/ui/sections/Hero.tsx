@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from "react";
+import React, { useRef, useLayoutEffect, useMemo } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { TextReveal } from "@/ui/components/TextReveal";
@@ -27,14 +27,24 @@ const ANIMATION_CONFIG = {
 export const Hero: React.FC = () => {
   const scopeRef = useRef<HTMLElement>(null);
   const circleRef = useRef<HTMLDivElement>(null);
-  const textRefs = {
-    name: useRef<HTMLHeadingElement>(null),
-    role: useRef<HTMLParagraphElement>(null),
-    location: useRef<HTMLParagraphElement>(null),
-    line1: useRef<HTMLParagraphElement>(null),
-    line2: useRef<HTMLParagraphElement>(null),
-    line3: useRef<HTMLParagraphElement>(null),
-  };
+
+  // Create refs outside of useMemo
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const roleRef = useRef<HTMLParagraphElement>(null);
+  const locationRef = useRef<HTMLParagraphElement>(null);
+  const line1Ref = useRef<HTMLParagraphElement>(null);
+  const line2Ref = useRef<HTMLParagraphElement>(null);
+  const line3Ref = useRef<HTMLParagraphElement>(null);
+
+  const textRefs = useMemo(() => ({
+    name: nameRef,
+    role: roleRef,
+    location: locationRef,
+    line1: line1Ref,
+    line2: line2Ref,
+    line3: line3Ref,
+  }), []);
+
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   // Set initial states
