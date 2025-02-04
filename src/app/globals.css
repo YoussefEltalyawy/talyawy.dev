@@ -5,6 +5,38 @@
   --color-brand-beige: #CABEB6;
 }
 
+/* Base animations */
+@keyframes enter {
+  from {
+    opacity: 0;
+    height: 0;
+  }
+  to {
+    opacity: 1;
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes exit {
+  from {
+    opacity: 1;
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+/* Animation classes */
+.accordion-content[data-state='open'] {
+  animation: enter 300ms ease-out;
+}
+
+.accordion-content[data-state='closed'] {
+  animation: exit 300ms ease-out;
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -23,11 +55,9 @@
   }
 }
 
-
-
 body {
   background-color: black;
-    font-family: 'League Spartan', sans-serif;
+  font-family: 'League Spartan', sans-serif;
 }
 
 .will-change-height {

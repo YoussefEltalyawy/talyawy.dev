@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { Service } from "@/lib/types";
 import { ChevronDown } from "lucide-react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./Accordion";
 
 const services: Service[] = [
   {
@@ -58,6 +59,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const animateContent = useCallback(() => {
+    if (isMobile) return; // Skip GSAP animations on mobile
     if (!contentRef.current || !underlineRef.current || !chevronRef.current) return;
 
     // Kill previous animations if they exist
@@ -65,29 +67,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
       animationRef.current.kill();
     }
 
-    if (isMobile) {
-      // Simplified mobile animations
-      gsap.to(chevronRef.current, {
-        rotation: isOpen ? 180 : 0,
-        duration: 0.3,
-        ease: "power2.inOut",
-      });
-
-      gsap.to(contentRef.current, {
-        height: isOpen ? "auto" : 0,
-        duration: 0.3,
-        ease: "power2.inOut",
-        onStart: () => {
-          if (contentRef.current) {
-            contentRef.current.style.opacity = "1";
-          }
-        },
-      });
-
-      return;
-    }
-
-    // Desktop animations remain the same
+    // Desktop animations
     animationRef.current = gsap.context(() => {
       const timeline = gsap.timeline({
         defaults: { ease: "power4.out" },
@@ -148,6 +128,43 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   React.useEffect(() => {
     animateContent();
   }, [isOpen, animateContent]);
+
+  if (isMobile) {
+    return (
+      <AccordionItem value={service.id} className="border-none">
+        <AccordionTrigger className="py-8 px-6 hover:no-underline group">
+          <div className="flex items-start gap-6 relative w-full">
+            <div className="text-3xl font-light text-brand-olive/60 transition-colors duration-300 group-hover:text-brand-olive/80">
+              {number}
+            </div>
+            <h3 className="text-3xl font-semibold text-brand-olive transition-colors duration-300 text-left">
+              {title}
+            </h3>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-6">
+          <p className="text-lg leading-relaxed text-brand-olive/80 mb-12 font-light">
+            {description}
+          </p>
+          <div className="space-y-6">
+            {features.map((feature, index) => (
+              <div
+                key={feature.id}
+                className="feature-item flex items-center gap-4 group/feature"
+              >
+                <span className="text-sm text-brand-olive/50 font-light transition-colors duration-300 group-hover/feature:text-brand-olive/70">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="text-lg text-brand-olive/90 font-medium transition-colors duration-300 group-hover/feature:text-brand-olive">
+                  {feature.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    );
+  }
 
   return (
     <div className="service-card group">
@@ -235,10 +252,28 @@ ServiceCard.displayName = "ServiceCard";
 
 const ServiceCards = () => {
   const [openServiceId, setOpenServiceId] = useState<string>("web-development");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const toggleService = useCallback((serviceId: string) => {
     setOpenServiceId((prev) => (prev === serviceId ? "" : serviceId));
   }, []);
+
+  if (isMobile) {
+    return (
+      <div className="max-w-[95%] mx-auto">
+        <Accordion type="single" defaultValue="web-development" collapsible>
+          {services.map((service) => (
+            <ServiceCard
+              key={service.id}
+              service={service}
+              isOpen={openServiceId === service.id}
+              onToggle={() => toggleService(service.id)}
+            />
+          ))}
+        </Accordion>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[95%] mx-auto">
