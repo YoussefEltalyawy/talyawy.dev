@@ -5,7 +5,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { Mail } from "lucide-react";
 import { ANIMATION_CONFIG } from "@/lib/animation-config";
-import { animateElements, createScrollTrigger } from "@/lib/animation-utils";
+import { animateElements } from "@/lib/animation-utils";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);

@@ -55,6 +55,7 @@ const SelectedWorks: React.FC = () => {
   const staticDigitRef = useRef<HTMLSpanElement>(null);
   const changingDigitRef = useRef<HTMLSpanElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
+  // @ts-ignore - activeProject is used in mouse events
   const [activeProject, setActiveProject] = useState<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
 
