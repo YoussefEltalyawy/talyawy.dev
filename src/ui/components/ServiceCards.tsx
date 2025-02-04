@@ -2,8 +2,7 @@ import React, { useState, useRef, useCallback, memo } from "react";
 import gsap from "gsap";
 import { Service } from "@/lib/types";
 import { ChevronDown } from "lucide-react";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./Accordion";
+import { ANIMATION_CONFIG } from "@/lib/animation-config";
 
 const services: Service[] = [
   {
@@ -56,10 +55,9 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   const underlineRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.Context | null>(null);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = window.innerWidth < 768;
 
   const animateContent = useCallback(() => {
-    if (isMobile) return; // Skip GSAP animations on mobile
     if (!contentRef.current || !underlineRef.current || !chevronRef.current) return;
 
     // Kill previous animations if they exist
@@ -67,54 +65,77 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
       animationRef.current.kill();
     }
 
-    // Desktop animations
+    // Create a new animation context
     animationRef.current = gsap.context(() => {
       const timeline = gsap.timeline({
-        defaults: { ease: "power4.out" },
+        defaults: {
+          ease: ANIMATION_CONFIG.ease.smooth,
+          duration: isMobile ? ANIMATION_CONFIG.duration.fast : ANIMATION_CONFIG.duration.medium
+        },
       });
 
-      timeline
-        .to(chevronRef.current, {
-          rotation: isOpen ? 180 : 0,
-          duration: 0.6,
-          ease: "power3.inOut",
-        })
-        .to(
-          contentRef.current,
-          {
-            height: isOpen ? "auto" : 0,
-            duration: 0.8,
-            ease: "power3.inOut",
-            onStart: () => {
-              if (contentRef.current) {
-                contentRef.current.style.opacity = "1";
+      if (contentRef.current && underlineRef.current && chevronRef.current) {
+        // Set will-change for performance
+        gsap.set([contentRef.current, chevronRef.current], {
+          willChange: "transform"
+        });
+
+        timeline
+          .to(chevronRef.current, {
+            rotation: isOpen ? 180 : 0,
+            duration: 0.4,
+            ease: ANIMATION_CONFIG.ease.snappy,
+          })
+          .to(
+            contentRef.current,
+            {
+              height: isOpen ? "auto" : 0,
+              duration: 0.6,
+              ease: ANIMATION_CONFIG.ease.smooth,
+              onStart: () => {
+                if (contentRef.current) {
+                  contentRef.current.style.opacity = "1";
+                }
+              },
+              onComplete: () => {
+                gsap.set([contentRef.current, chevronRef.current], {
+                  willChange: "auto"
+                });
               }
             },
-          },
-          "-=0.4"
-        )
-        .to(
-          underlineRef.current,
-          {
-            opacity: isOpen ? 1 : 0,
-            duration: 0.6,
-          },
-          "-=0.4"
-        );
+            "-=0.2"
+          );
 
-      if (isOpen && contentRef.current) {
-        const features = contentRef.current.querySelectorAll(".feature-item");
-        timeline.from(
-          features,
-          {
-            y: 40,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.08,
-            ease: "power3.out",
-          },
-          "-=0.4"
-        );
+        // Only animate underline on desktop
+        if (!isMobile) {
+          timeline.to(
+            underlineRef.current,
+            {
+              opacity: isOpen ? 1 : 0,
+              duration: 0.4,
+            },
+            "-=0.4"
+          );
+        }
+
+        if (isOpen && contentRef.current) {
+          const features = contentRef.current.querySelectorAll(".feature-item");
+          const stagger = isMobile
+            ? ANIMATION_CONFIG.stagger.mobile.elements
+            : ANIMATION_CONFIG.stagger.desktop.elements;
+
+          timeline.from(
+            features,
+            {
+              y: 20, // Reduced travel distance
+              opacity: 0,
+              duration: 0.6,
+              stagger,
+              ease: ANIMATION_CONFIG.ease.smooth,
+            },
+            "-=0.2"
+          );
+        }
       }
     });
 
@@ -129,56 +150,19 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
     animateContent();
   }, [isOpen, animateContent]);
 
-  if (isMobile) {
-    return (
-      <AccordionItem value={service.id} className="border-none">
-        <AccordionTrigger className="py-8 px-6 hover:no-underline group">
-          <div className="flex items-start gap-6 relative w-full">
-            <div className="text-3xl font-light text-brand-olive/60 transition-colors duration-300 group-hover:text-brand-olive/80">
-              {number}
-            </div>
-            <h3 className="text-3xl font-semibold text-brand-olive transition-colors duration-300 text-left">
-              {title}
-            </h3>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="px-6">
-          <p className="text-lg leading-relaxed text-brand-olive/80 mb-12 font-light">
-            {description}
-          </p>
-          <div className="space-y-6">
-            {features.map((feature, index) => (
-              <div
-                key={feature.id}
-                className="feature-item flex items-center gap-4 group/feature"
-              >
-                <span className="text-sm text-brand-olive/50 font-light transition-colors duration-300 group-hover/feature:text-brand-olive/70">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span className="text-lg text-brand-olive/90 font-medium transition-colors duration-300 group-hover/feature:text-brand-olive">
-                  {feature.name}
-                </span>
-              </div>
-            ))}
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    );
-  }
-
   return (
     <div className="service-card group">
       <button
         onClick={onToggle}
-        className="w-full text-left py-8 relative focus:outline-none 
+        className="w-full text-left py-6 sm:py-8 relative focus:outline-none 
                  focus-visible:ring-2 focus-visible:ring-brand-olive/50 
                  focus-visible:ring-offset-2 transition-colors duration-300
-                 hover:bg-brand-olive/5 rounded-2xl px-6 sm:px-8"
+                 hover:bg-brand-olive/5 rounded-2xl px-4 sm:px-8"
         aria-expanded={isOpen}
       >
-        <div className="flex flex-col md:flex-row items-start gap-6 relative pr-12">
+        <div className="flex flex-col md:flex-row items-start gap-4 sm:gap-6 relative pr-10 sm:pr-12">
           <div
-            className="text-3xl md:text-4xl lg:text-5xl font-light text-brand-olive/60 
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-brand-olive/60 
                      transition-colors duration-300 group-hover:text-brand-olive/80"
           >
             {number}
@@ -186,7 +170,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
 
           <div className="space-y-4 flex-grow">
             <h3
-              className="text-3xl md:text-4xl lg:text-5xl font-semibold text-brand-olive 
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold text-brand-olive 
                        transition-colors duration-300"
             >
               {title}
@@ -197,24 +181,24 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
               className="overflow-hidden"
               style={{ height: 0 }}
             >
-              <div className="py-8">
-                <p className="text-lg md:text-xl leading-relaxed text-brand-olive/80 mb-12 
+              <div className="py-6 sm:py-8">
+                <p className="text-base sm:text-lg md:text-xl leading-relaxed text-brand-olive/80 mb-8 sm:mb-12 
                            font-light max-w-4xl">
                   {description}
                 </p>
 
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {features.map((feature, index) => (
                     <div
                       key={feature.id}
-                      className="feature-item flex items-center gap-4 md:gap-6 group/feature"
+                      className="feature-item flex items-center gap-3 sm:gap-4 md:gap-6 group/feature"
                     >
                       <span className="text-sm md:text-base text-brand-olive/50 font-light
                                    transition-colors duration-300 
                                    group-hover/feature:text-brand-olive/70">
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <span className="text-lg md:text-xl text-brand-olive/90 font-medium
+                      <span className="text-base sm:text-lg md:text-xl text-brand-olive/90 font-medium
                                    transition-colors duration-300 
                                    group-hover/feature:text-brand-olive">
                         {feature.name}
@@ -229,20 +213,23 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
           {/* Chevron icon */}
           <div
             ref={chevronRef}
-            className="absolute right-0 top-3"
+            className="absolute right-0 top-2 sm:top-3"
           >
             <ChevronDown
-              className="w-6 h-6 text-brand-olive/60 transition-colors duration-300
+              className="w-5 h-5 sm:w-6 sm:h-6 text-brand-olive/60 transition-colors duration-300
                        group-hover:text-brand-olive"
             />
           </div>
         </div>
 
-        <div
-          ref={underlineRef}
-          className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-brand-olive/80 
-                   to-brand-olive/20 opacity-0 w-full transform-gpu rounded-full"
-        />
+        {/* Only show underline on desktop */}
+        {!isMobile && (
+          <div
+            ref={underlineRef}
+            className="absolute left-0 bottom-0 h-0.5 bg-gradient-to-r from-brand-olive/80 
+                     to-brand-olive/20 opacity-0 w-full transform-gpu rounded-full"
+          />
+        )}
       </button>
     </div>
   );
@@ -252,28 +239,10 @@ ServiceCard.displayName = "ServiceCard";
 
 const ServiceCards = () => {
   const [openServiceId, setOpenServiceId] = useState<string>("web-development");
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const toggleService = useCallback((serviceId: string) => {
     setOpenServiceId((prev) => (prev === serviceId ? "" : serviceId));
   }, []);
-
-  if (isMobile) {
-    return (
-      <div className="max-w-[95%] mx-auto">
-        <Accordion type="single" defaultValue="web-development" collapsible>
-          {services.map((service) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              isOpen={openServiceId === service.id}
-              onToggle={() => toggleService(service.id)}
-            />
-          ))}
-        </Accordion>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-[95%] mx-auto">

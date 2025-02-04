@@ -3,7 +3,8 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import ServiceCards from "../components/ServiceCards";
 import { useGSAP } from "@gsap/react";
-import { ANIMATION_CONFIG } from "@/lib/types";
+import { ANIMATION_CONFIG } from "@/lib/animation-config";
+import { animateElements } from "@/lib/animation-utils";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // Register GSAP plugins only once on the client side
@@ -28,9 +29,7 @@ function Services() {
     const words = HEADING_TEXT.split(" ")
       .map(
         (word, index, arr) => `
-      <div class="inline-block overflow-hidden${
-        index !== arr.length - 1 ? " mr-[0.25em]" : ""
-      }">
+      <div class="inline-block overflow-hidden${index !== arr.length - 1 ? " mr-[0.25em]" : ""}">
         <span class="inline-block">${word}</span>
       </div>
     `
@@ -40,61 +39,30 @@ function Services() {
     headingWrapper.innerHTML = words;
 
     const spans = headingWrapper.querySelectorAll("span");
-    const initialSpanStyles = {
-      y: 100,
-      opacity: 0,
-      filter: "blur(8px)",
-    };
 
     // Create a context for better memory management
     const ctx = gsap.context(() => {
-      // Set initial states
-      gsap.set(spans, initialSpanStyles);
-
       // Main timeline for heading animation
       const mainTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: services,
-          start: "top center+=40%",
+          start: isMobile ? "top center+=20%" : "top center+=40%",
           toggleActions: "play none none reverse",
         },
-        defaults: {
-          duration: ANIMATION_CONFIG.duration,
-          ease: "power3.out",
-        },
       });
 
-      // Heading animation
-      mainTimeline.to(spans, {
-        y: 0,
-        opacity: 1,
-        filter: "blur(0px)",
-        stagger: ANIMATION_CONFIG.stagger,
-        duration: 1.2,
-        ease: "power4.out",
-        onStart: () => {
-          spans.forEach((span) => {
-            if (span instanceof HTMLElement) {
-              span.style.willChange = "transform, opacity, filter";
-            }
-          });
-        },
-        onComplete: () => {
-          spans.forEach((span) => {
-            if (span instanceof HTMLElement) {
-              span.style.willChange = "auto";
-            }
-          });
-        },
+      // Heading animation using optimized animateElements
+      const headingAnimation = animateElements({
+        elements: spans,
+        duration: isMobile ? ANIMATION_CONFIG.duration.medium : ANIMATION_CONFIG.duration.slow,
+        ease: ANIMATION_CONFIG.ease.textReveal,
+        useBlur: !isMobile,
       });
+
+      mainTimeline.add(headingAnimation);
 
       if (!isMobile) {
-        // Border radius animation
-        gsap.set(services, {
-          borderRadius: "48px",
-          willChange: "border-radius",
-        });
-
+        // Border radius animation - only on desktop
         const borderRadiusTimeline = gsap.timeline({
           scrollTrigger: {
             trigger: services,
@@ -102,6 +70,11 @@ function Services() {
             end: "top top",
             scrub: 1,
           },
+        });
+
+        gsap.set(services, {
+          borderRadius: "48px",
+          willChange: "border-radius",
         });
 
         borderRadiusTimeline.to(services, {
@@ -114,7 +87,7 @@ function Services() {
           },
         });
 
-        // Hero section blur effect
+        // Hero section blur effect - only on desktop
         const heroSection = document.querySelector("#hero-section");
         if (heroSection instanceof HTMLElement) {
           const blurTimeline = gsap.timeline({
@@ -126,12 +99,14 @@ function Services() {
             },
           });
 
-          gsap.set(heroSection, { willChange: "filter" });
           blurTimeline.fromTo(
             heroSection,
-            { filter: "blur(0px)" },
             {
-              filter: "blur(10px)",
+              filter: "blur(0px)",
+              willChange: "filter"
+            },
+            {
+              filter: "blur(8px)",
               onComplete: () => {
                 if (heroSection instanceof HTMLElement) {
                   heroSection.style.willChange = "auto";
@@ -153,7 +128,7 @@ function Services() {
   return (
     <section
       ref={servicesRef}
-      className="w-full min-h-screen bg-brand-beige px-10 pt-20 overflow-hidden"
+      className="w-full min-h-screen bg-brand-beige px-6 sm:px-10 pt-20 overflow-hidden"
     >
       <h2
         ref={headingWrapperRef}
@@ -163,4 +138,5 @@ function Services() {
     </section>
   );
 }
+
 export default Services;

@@ -1,25 +1,38 @@
 export const ANIMATION_CONFIG = {
   duration: {
-    fast: 0.3,
-    medium: 0.6,
-    slow: 0.9,
-    extraSlow: 1.2
+    fast: 0.25,
+    medium: 0.5,
+    slow: 0.75,
+    extraSlow: 1
   },
   ease: {
-    smooth: "power3.out",
-    snappy: "power4.out",
-    bounce: "elastic.out(1, 0.3)",
-    gentle: "power2.inOut",
-    textReveal: "power4.out"
+    smooth: "power2.out",
+    snappy: "power2.out",
+    bounce: "back.out(1.2)",
+    gentle: "power1.inOut",
+    textReveal: "power2.out"
   },
   stagger: {
-    text: 0.08,
-    elements: 0.15,
-    cards: 0.2
+    mobile: {
+      text: 0.04,
+      elements: 0.08,
+      cards: 0.12
+    },
+    desktop: {
+      text: 0.08,
+      elements: 0.15,
+      cards: 0.2
+    }
   },
   blur: {
-    start: "blur(8px)",
-    end: "blur(0px)"
+    mobile: {
+      start: "blur(4px)",
+      end: "blur(0px)"
+    },
+    desktop: {
+      start: "blur(8px)",
+      end: "blur(0px)"
+    }
   },
   defaults: {
     opacity: {
@@ -27,7 +40,7 @@ export const ANIMATION_CONFIG = {
       to: 1
     },
     y: {
-      from: 100,
+      from: 50,
       to: 0
     }
   }

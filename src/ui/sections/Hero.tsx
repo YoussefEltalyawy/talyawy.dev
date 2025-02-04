@@ -22,8 +22,9 @@ export const Hero: React.FC = () => {
       if (!scopeRef.current) return;
 
       const mainTimeline = gsap.timeline();
+      const isMobile = window.innerWidth < 768;
 
-      // Set initial state for all elements
+      // Set initial states for all elements to ensure they're hidden
       const allTextElements = Object.values(textRefs)
         .map((ref) => ref.current)
         .filter(Boolean);
@@ -31,73 +32,62 @@ export const Hero: React.FC = () => {
       gsap.set(allTextElements, {
         y: 100,
         opacity: 0,
-        filter: ANIMATION_CONFIG.blur.start,
+        filter: isMobile ? "none" : ANIMATION_CONFIG.blur.desktop.start,
       });
 
-      gsap.set(circleRef.current, { 
-        scale: 0.2, 
-        opacity: 0 
+      gsap.set(circleRef.current, {
+        scale: 0.2,
+        opacity: 0,
       });
 
-      // Circle animation
-      mainTimeline.add(() => {
-        if (circleRef.current) {
-          gsap.to(circleRef.current, {
-            scale: 1,
-            opacity: 1,
-            duration: ANIMATION_CONFIG.duration.extraSlow,
-            ease: ANIMATION_CONFIG.ease.gentle,
-            transformOrigin: "left bottom",
-          });
-        }
-      });
+      // 1. Circle animation (starts the sequence)
+      const circleAnimation = gsap.timeline()
+        .to(circleRef.current, {
+          scale: 1,
+          opacity: isMobile ? 0.6 : 0.8,
+          duration: isMobile ? ANIMATION_CONFIG.duration.slow : ANIMATION_CONFIG.duration.extraSlow,
+          ease: ANIMATION_CONFIG.ease.gentle,
+          transformOrigin: "left bottom",
+        });
 
-      // Name animation
+      // 2. Name animation (the main title)
       const nameAnimation = animateElements({
         elements: textRefs.name.current,
-        toVars: {
-          y: 0,
-          opacity: 1,
-          filter: ANIMATION_CONFIG.blur.end,
-        },
         duration: ANIMATION_CONFIG.duration.extraSlow,
         ease: ANIMATION_CONFIG.ease.textReveal,
+        useBlur: !isMobile,
+        willChange: ["transform", "opacity", "filter"],
       });
 
-      // Role and location animation
-      const roleLocationAnimation = animateElements({
-        elements: [textRefs.role.current, textRefs.location.current].filter(Boolean),
-        toVars: {
-          y: 0,
-          opacity: 1,
-          filter: ANIMATION_CONFIG.blur.end,
-        },
+      // 3. Role and location animation (secondary info)
+      const bioAnimation = animateElements({
+        elements: [textRefs.role.current, textRefs.location.current],
         duration: ANIMATION_CONFIG.duration.medium,
-        stagger: ANIMATION_CONFIG.stagger.text,
+        stagger: isMobile ? ANIMATION_CONFIG.stagger.mobile.text : ANIMATION_CONFIG.stagger.desktop.text,
         ease: ANIMATION_CONFIG.ease.textReveal,
+        useBlur: !isMobile,
       });
 
-      // Description lines animation
+      // 4. Description lines animation (final elements)
       const descriptionAnimation = animateElements({
         elements: [
           textRefs.line1.current,
           textRefs.line2.current,
           textRefs.line3.current,
-        ].filter(Boolean),
-        toVars: {
-          y: 0,
-          opacity: 1,
-          filter: ANIMATION_CONFIG.blur.end,
-        },
-        duration: ANIMATION_CONFIG.duration.slow,
-        stagger: ANIMATION_CONFIG.stagger.text,
+        ],
+        duration: ANIMATION_CONFIG.duration.medium,
+        stagger: isMobile ? ANIMATION_CONFIG.stagger.mobile.text : ANIMATION_CONFIG.stagger.desktop.text,
         ease: ANIMATION_CONFIG.ease.textReveal,
+        useBlur: !isMobile,
       });
 
+      // Build the sequence with proper timing
       mainTimeline
-        .add(nameAnimation)
-        .add(roleLocationAnimation, "-=0.7")
-        .add(descriptionAnimation, "-=0.4");
+        .add(circleAnimation)
+        .add(nameAnimation, "-=0.4") // Start name animation before circle finishes
+        .add(bioAnimation, "-=0.2") // Start bio slightly before name finishes
+        .add(descriptionAnimation, "-=0.1"); // Start description slightly before bio finishes
+
     },
     { scope: scopeRef }
   );
@@ -111,8 +101,9 @@ export const Hero: React.FC = () => {
       {/* Background circle */}
       <div
         ref={circleRef}
-        className="absolute bottom-0 left-0 w-96 h-96 bg-brand-olive/60 rounded-full blur-[120px] 
-                   lg:w-[400px] lg:h-[400px]"
+        className="absolute bottom-0 left-0 w-96 h-96 bg-brand-olive/60 rounded-full 
+                   blur-[60px] md:blur-[120px] lg:w-[400px] lg:h-[400px]
+                   opacity-0" // Add initial opacity-0 to prevent flash
       />
 
       {/* Content container */}
@@ -124,17 +115,18 @@ export const Hero: React.FC = () => {
               <h1
                 ref={textRefs.name}
                 className="text-7xl md:text-8xl lg:text-9xl font-semibold text-brand-beige 
-                         will-change-transform tracking-tight"
+                         will-change-[transform,opacity,filter] tracking-tight
+                         opacity-0" // Add initial opacity-0 to prevent flash
               >
                 talyawy
               </h1>
             </div>
             <div className="-space-y-1.5">
-              <TextReveal ref={textRefs.role}>
+              <TextReveal ref={textRefs.role} className="opacity-0">
                 <span className="font-light">Full-Stack </span>
                 <span className="font-normal">Web Developer & Designer</span>
               </TextReveal>
-              <TextReveal ref={textRefs.location}>
+              <TextReveal ref={textRefs.location} className="opacity-0">
                 <span className="font-light">Based In </span>
                 <span className="font-normal">Giza, Egypt</span>
               </TextReveal>
@@ -149,7 +141,7 @@ export const Hero: React.FC = () => {
                   key={index}
                   ref={ref}
                   align="right"
-                  className="text-base md:text-2xl leading-tight"
+                  className="text-base md:text-2xl leading-tight opacity-0"
                 >
                   {index === 0 &&
                     "I craft pixel-perfect web experiences for creators,"}
