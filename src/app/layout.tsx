@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, League_Spartan } from "next/font/google";
 import "./globals.css";
 import Footer from "@/ui/components/Footer";
+// import Navbar from "@/ui/components/Navbar";
+import Navigation from "@/ui/components/Navbar";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -35,9 +37,8 @@ export default function RootLayout({
       <body
         className={`${leagueSpartan.variable} ${inter.variable} antialiased min-h-screen flex flex-col`}
       >
-        <main className="flex-grow">
-          {children}
-        </main>
+        <Navigation/>
+        <main className="flex-grow">{children}</main>
         <Footer className={leagueSpartan.variable} />
       </body>
     </html>
