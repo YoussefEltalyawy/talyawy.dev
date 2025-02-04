@@ -4,6 +4,9 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { Mail } from "lucide-react";
+import { ANIMATION_CONFIG } from "@/lib/animation-config";
+import { animateElements, createScrollTrigger } from "@/lib/animation-utils";
+import { throttle } from "lodash";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -16,104 +19,104 @@ const CallToAction: React.FC = () => {
   const buttonRef = useRef<HTMLAnchorElement>(null);
 
   useGSAP(() => {
-    if (
-      !sectionRef.current ||
-      !textWrapperRef.current ||
-      !buttonRef.current ||
-      !circleRef.current
-    )
-      return;
+    if (!sectionRef.current || !textWrapperRef.current || !buttonRef.current || !circleRef.current) return;
 
-    // Text animation setup (same as Hero)
+    // Text animation setup
     textWrapperRef.current.innerHTML = `
-      <div class="overflow-hidden">
-        <div class="line">LET'S WORK</div>
-      </div>
-      <div class="overflow-hidden">
-        <div class="line">TOGETHER</div>
-      </div>
+      <div class="overflow-hidden"><div class="line">LET'S WORK</div></div>
+      <div class="overflow-hidden"><div class="line">TOGETHER</div></div>
     `;
 
     const lines = textWrapperRef.current.querySelectorAll(".line");
     const buttonContent = buttonRef.current.querySelectorAll(".button-element");
 
-    // Initial states (match Hero's initial setup)
-    gsap.set([lines, buttonContent], {
-      y: 100,
-      opacity: 0,
-      filter: "blur(8px)",
-    });
-
-    // Circle initial state
-    gsap.set(circleRef.current, {
-      scale: 1.5,
-      opacity: 0,
-    });
-
-    // Create master timeline with scroll trigger
+    // Create master timeline
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: sectionRef.current,
         start: "top center+=20%",
         end: "bottom center",
         toggleActions: "play none none reverse",
-      },
+      }
     });
 
-    // Text animation (identical to Hero's animation)
-    tl.to(lines, {
-      y: 0,
-      opacity: 1,
-      filter: "blur(0px)",
-      duration: 1.2,
-      stagger: 0.08,
-      ease: "power3.out",
-    })
-      // Circle animation
-      .to(
-        circleRef.current,
-        {
-          scale: 1,
-          opacity: 0.7,
-          duration: 1.8,
-          ease: "power2.inOut",
-        },
-        "-=1"
-      )
-      // Button animation (slight delay after text)
-      .to(
-        buttonContent,
-        {
-          y: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.9,
-          stagger: 0.04,
-          ease: "power3.out",
-        },
-        "-=1.4"
-      );
+    // Text animation
+    const textAnimation = animateElements({
+      elements: lines,
+      fromVars: {
+        y: 100,
+        opacity: 0,
+        filter: ANIMATION_CONFIG.blur.start
+      },
+      toVars: {
+        duration: ANIMATION_CONFIG.duration.extraSlow,
+        stagger: ANIMATION_CONFIG.stagger.text,
+        ease: ANIMATION_CONFIG.ease.smooth,
+        filter: ANIMATION_CONFIG.blur.end
+      }
+    });
 
-    // Mouse movement effect on circle
-    const handleMouseMove = (e: MouseEvent) => {
+    // Circle animation
+    const circleAnimation = gsap.timeline()
+      .set(circleRef.current, {
+        scale: 1.5,
+        opacity: 0,
+        willChange: "transform, opacity"
+      })
+      .to(circleRef.current, {
+        scale: 1,
+        opacity: 0.7,
+        duration: ANIMATION_CONFIG.duration.slow,
+        ease: ANIMATION_CONFIG.ease.gentle,
+        onComplete: () => {
+          gsap.set(circleRef.current, { willChange: "auto" });
+        }
+      });
+
+    // Button animation
+    const buttonAnimation = animateElements({
+      elements: buttonContent,
+      fromVars: {
+        y: 100,
+        opacity: 0,
+        filter: ANIMATION_CONFIG.blur.start
+      },
+      toVars: {
+        duration: ANIMATION_CONFIG.duration.medium,
+        stagger: ANIMATION_CONFIG.stagger.text,
+        ease: ANIMATION_CONFIG.ease.smooth,
+        filter: ANIMATION_CONFIG.blur.end
+      }
+    });
+
+    // Combine all animations
+    tl.add(textAnimation)
+      .add(circleAnimation, "-=1")
+      .add(buttonAnimation, "-=1.4");
+
+    // Optimize mouse movement effect
+    const handleMouseMove = throttle((e: MouseEvent) => {
+      if (!sectionRef.current || !circleRef.current) return;
+
       const { clientX, clientY } = e;
-      const { left, top, width, height } =
-        sectionRef.current!.getBoundingClientRect();
+      const { left, top, width, height } = sectionRef.current.getBoundingClientRect();
       const x = (clientX - left - width / 2) * 0.15;
       const y = (clientY - top - height / 2) * 0.15;
 
       gsap.to(circleRef.current, {
-        x: x,
-        y: y,
-        duration: 1,
-        ease: "power2.out",
+        x,
+        y,
+        duration: ANIMATION_CONFIG.duration.medium,
+        ease: ANIMATION_CONFIG.ease.gentle,
       });
-    };
+    }, 1000/60); // Throttle to 60fps
 
     sectionRef.current.addEventListener("mousemove", handleMouseMove);
-
+    
     return () => {
-      sectionRef.current?.removeEventListener("mousemove", handleMouseMove);
+      if (sectionRef.current) {
+        sectionRef.current.removeEventListener("mousemove", handleMouseMove);
+      }
     };
   }, []);
 
@@ -126,7 +129,7 @@ const CallToAction: React.FC = () => {
       {/* Blurry Olive Circle */}
       <div
         ref={circleRef}
-        className="absolute w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] 
+        className="absolute w-[280px] h-[280px] sm:w-[400px] sm:h-[400px]   
                    md:w-[600px] md:h-[600px] lg:w-[800px] lg:h-[800px] 
                    bg-gradient-to-br from-brand-olive/60 to-brand-olive/40 
                    rounded-full blur-[100px] sm:blur-[120px] md:blur-[140px] 
@@ -143,7 +146,7 @@ const CallToAction: React.FC = () => {
                        font-bold leading-[0.95] tracking-tight text-center
                        md:text-left uppercase"
           />
-          {/* Full-width email button on desktop */}
+          {/* Full-width email button */}
           <div className="flex justify-center md:justify-start px-4 overflow-hidden">
             <a
               ref={buttonRef}
@@ -152,16 +155,11 @@ const CallToAction: React.FC = () => {
                        p-4 sm:p-6 rounded-2xl w-full max-w-[800px] md:max-w-none
                        md:w-full hover:bg-brand-beige/5 transition-colors duration-300"
             >
-              {/* Animated elements */}
               <div className="button-element flex-shrink-0 overflow-hidden">
-                <div
-                  className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center
-                              bg-brand-beige/5 rounded-xl"
-                >
-                  <Mail
-                    className="w-6 h-6 sm:w-8 sm:h-8 text-brand-beige
-                             transition-all duration-300"
-                  />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center
+                              bg-brand-beige/5 rounded-xl">
+                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-brand-beige
+                             transition-all duration-300" />
                 </div>
               </div>
 
@@ -169,10 +167,8 @@ const CallToAction: React.FC = () => {
                 <span className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 mb-1">
                   Available for new projects
                 </span>
-                <span
-                  className="text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight
-                           truncate text-brand-beige text-left"
-                >
+                <span className="text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight
+                           truncate text-brand-beige text-left">
                   talyawy@proton.me
                 </span>
               </div>
