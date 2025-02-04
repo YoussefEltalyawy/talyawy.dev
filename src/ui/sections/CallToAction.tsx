@@ -6,6 +6,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import { Mail } from "lucide-react";
 import { ANIMATION_CONFIG } from "@/lib/animation-config";
 import { animateElements } from "@/lib/animation-utils";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -16,7 +17,7 @@ const CallToAction: React.FC = () => {
   const textWrapperRef = useRef<HTMLDivElement>(null);
   const circleRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLAnchorElement>(null);
-  const isMobile = window.innerWidth < 768;
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   useGSAP(() => {
     if (!sectionRef.current || !textWrapperRef.current || !buttonRef.current || !circleRef.current) return;

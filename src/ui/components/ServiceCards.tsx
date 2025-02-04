@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { Service } from "@/lib/types";
 import { ChevronDown } from "lucide-react";
 import { ANIMATION_CONFIG } from "@/lib/animation-config";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const services: Service[] = [
   {
@@ -55,7 +56,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   const underlineRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.Context | null>(null);
-  const isMobile = window.innerWidth < 768;
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const animateContent = useCallback(() => {
     if (!contentRef.current || !underlineRef.current || !chevronRef.current) return;
