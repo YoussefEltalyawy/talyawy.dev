@@ -9,7 +9,7 @@ const services: Service[] = [
     number: "01",
     title: "Web Development",
     description:
-      "A website developed to captivate and convert can elevate your brand to new heights. My custom-coded sites are meticulously crafted to reflect your unique identity, delivering seamless experiences with a focus on animation—keeping your audience engaged and returning.",
+      "Custom websites that convert visitors into customers and elevate your brand. Every site I create is carefully crafted to reflect your unique identity, featuring smooth animations and intuitive design that keeps your audience engaged and coming back for more.",
     features: [
       { id: "cms", name: "CMS Integration" },
       { id: "motion", name: "Motion & Animations" },

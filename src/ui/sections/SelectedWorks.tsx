@@ -24,13 +24,16 @@ const projects: Project[] = [
   {
     id: 1,
     title: "Fizzi",
-    category: "Landing",
+    category: "3D Landing Page",
     brief:
-      " A fully customized e-commerce website for an Egyptian fashion brand that blends old-money aesthetics with streetwear. Built using Shopify's Hydrogen framework, the project covered design, SEO, and full-stack development.",
+      "A modern landing page for an imaginary beverage product. The project showcases a perfect blend of 3D elements and web design, featuring custom 3D models created in Blender, an engaging UI designed in Figma, and smooth animations implemented with Next.js.",
     video: "/fizzi.mp4",
     tags: [
       "NEXT.JS",
-      "3D ELEMENTS",
+      "3D MODELING",
+      "BLENDER",
+      "FIGMA",
+      "UI DESIGN",
       "GSAP",
     ],
     link: "https://fizzi.vercel.app/",
@@ -51,6 +54,23 @@ const projects: Project[] = [
       "WEB DESIGN",
     ],
     link: "https://saltyeg.com/",
+  },
+  {
+    id: 3,
+    title: "Ankh",
+    category: "Productivity SaaS App",
+    brief:
+      "An elegant productivity application that combines task management, note-taking, and time tracking functionalities in one seamless interface. Features drag-and-drop task organization, sleek dark-themed design, and comprehensive productivity tools. Built with a full-stack approach using Supabase for backend and Kinde for authentication.",
+    video: "/Ankh.mp4",
+    tags: [
+      "NEXT.JS",
+      "SUPABASE",
+      "KINDE AUTH",
+      "FIGMA",
+      "FULL-STACK",
+      "DRAG & DROP",
+    ],
+    link: "https://ankhbytalyawy.vercel.app/",
   },
 ];
 
@@ -83,8 +103,7 @@ const SelectedWorks: React.FC = () => {
     headingRef.current.innerHTML = words
       .map(
         (word, index) => `
-        <div class="inline-block overflow-hidden${
-          index !== words.length - 1 ? " mr-[0.25em]" : ""
+        <div class="inline-block overflow-hidden${index !== words.length - 1 ? " mr-[0.25em]" : ""
         }">
           <span class="inline-block will-change-transform">
             ${word}
@@ -226,8 +245,7 @@ const SelectedWorks: React.FC = () => {
 
         <div
           ref={projectsRef}
-          className={`space-y-20 md:space-y-32 lg:space-y-40 ${
-            !isDesktop ? "col-span-1" : ""
+          className={`space-y-20 md:space-y-32 lg:space-y-40 ${!isDesktop ? "col-span-1" : ""
           }`}
         >
           {projects.map((project, index) => (

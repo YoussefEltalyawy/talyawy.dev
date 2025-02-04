@@ -25,7 +25,7 @@ const CallToAction: React.FC = () => {
 
     // Set initial text state
     textWrapperRef.current.innerHTML = `
-      <div class="overflow-hidden"><div class="line will-change-[transform,opacity]">LET'S WORK</div></div>
+      <div class="overflow-hidden"><div class="line will-change-[transform,opacity]">LETS WORK</div></div>
       <div class="overflow-hidden"><div class="line will-change-[transform,opacity]">TOGETHER</div></div>
     `;
 

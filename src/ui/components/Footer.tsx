@@ -12,18 +12,26 @@ const Footer = ({ className }: FooterProps) => {
           {/* Get In Touch Section */}
           <div className="space-y-2">
             <h2 className="text-2xl font-semibold">Get In Touch</h2>
-            <a
-              href="mailto:talyawy@proton.me"
-              className="text-lg font-bold text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
-            >
-              talyawy@proton.me
-            </a>
+            <div className="flex flex-col space-y-2">
+              <a
+                href="mailto:talyawy@proton.me"
+                className="text-lg font-bold text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
+              >
+                talyawy@proton.me
+              </a>
+              <a
+                href="tel:+201149173309"
+                className="text-lg font-bold text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
+              >
+                +20 114 917 3309
+              </a>
+            </div>
           </div>
 
           {/* Social Links */}
           <div className="flex flex-col items-center space-y-2">
             <Link
-              href="https://github.com"
+              href="https://github.com/YoussefEltalyawy"
               target="_blank"
               rel="noopener noreferrer"
               className="text-lg font-bold text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
@@ -31,7 +39,7 @@ const Footer = ({ className }: FooterProps) => {
               GitHub ↗
             </Link>
             <Link
-              href="https://instagram.com"
+              href="https://www.instagram.com/yousefeltalyawy/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-lg font-bold text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
@@ -39,7 +47,7 @@ const Footer = ({ className }: FooterProps) => {
               Instagram ↗
             </Link>
             <Link
-              href="https://whatsapp.com"
+              href="https://wa.me/201149173309"
               target="_blank"
               rel="noopener noreferrer"
               className="text-lg font-bold text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
