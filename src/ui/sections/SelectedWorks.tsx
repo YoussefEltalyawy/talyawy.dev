@@ -55,6 +55,7 @@ const SelectedWorks: React.FC = () => {
   const staticDigitRef = useRef<HTMLSpanElement>(null);
   const changingDigitRef = useRef<HTMLSpanElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
+  const [activeProject, setActiveProject] = useState<number | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
@@ -116,10 +117,38 @@ const SelectedWorks: React.FC = () => {
       [...projectElements].forEach((project, index) => {
         ScrollTrigger.create({
           trigger: project,
-          start: "top center",
-          end: "bottom center",
-          onEnter: () => updateDigit(index + 1, "down"),
-          onEnterBack: () => updateDigit(index + 1, "up"),
+          start: "top center+=100",
+          end: "bottom center-=100",
+          onEnter: () => {
+            updateDigit(index + 1, "down");
+            gsap.to(project, {
+              opacity: 1,
+              duration: 0.8,
+              ease: "power3.out",
+            });
+          },
+          onEnterBack: () => {
+            updateDigit(index + 1, "up");
+            gsap.to(project, {
+              opacity: 1,
+              duration: 0.8,
+              ease: "power3.out",
+            });
+          },
+          onLeave: () => {
+            gsap.to(project, {
+              opacity: 0.6,
+              duration: 0.8,
+              ease: "power3.in",
+            });
+          },
+          onLeaveBack: () => {
+            gsap.to(project, {
+              opacity: 0.6,
+              duration: 0.8,
+              ease: "power3.in",
+            });
+          },
         });
       });
     }
@@ -166,6 +195,8 @@ const SelectedWorks: React.FC = () => {
       ref={sectionRef}
       className="relative min-h-screen bg-brand-olive text-brand-beige px-4 sm:px-6 md:px-8 lg:px-10 py-12 md:py-16 lg:py-20"
     >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(202,190,182,0.03),transparent)] pointer-events-none" />
+      
       <h2
         ref={headingRef}
         className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-beige tracking-tight mb-12 md:mb-16 lg:mb-20"
@@ -175,10 +206,13 @@ const SelectedWorks: React.FC = () => {
         {isDesktop && (
           <div className="hidden lg:block lg:sticky lg:top-20 h-fit">
             <div className="flex text-[200px] xl:text-[300px] font-semibold leading-none opacity-80">
-              <span ref={staticDigitRef} className="block">
+              <span ref={staticDigitRef} className="block mix-blend-difference">
                 0
               </span>
-              <span ref={changingDigitRef} className="block overflow-hidden">
+              <span
+                ref={changingDigitRef}
+                className="block overflow-hidden mix-blend-difference"
+              >
                 1
               </span>
             </div>
@@ -191,43 +225,55 @@ const SelectedWorks: React.FC = () => {
             !isDesktop ? "col-span-1" : ""
           }`}
         >
-          {projects.map((project) => (
-            <div key={project.id} className="project-card">
-              <div className="aspect-video overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8">
+          {projects.map((project, index) => (
+            <div
+              key={project.id}
+              className="project-card group"
+              onMouseEnter={() => setActiveProject(index)}
+              onMouseLeave={() => setActiveProject(null)}
+            >
+              <div className="aspect-video overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8 
+                             transform transition-transform duration-700 ease-out hover:scale-[1.02]">
+                <div className="absolute inset-0 bg-brand-olive/20 mix-blend-overlay transition-opacity duration-300 
+                               group-hover:opacity-0" />
                 <video
                   src={project.video}
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transform scale-105 transition-transform duration-700 
+                           group-hover:scale-100"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-olive/40 to-transparent opacity-60 
+                               transition-opacity duration-300 group-hover:opacity-30" />
               </div>
-              <div className="space-y-6">
-                {/* Category - Smaller, uppercase, tracked */}
-                <p className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60">
+              
+              <div className="space-y-6 transform transition-all duration-500">
+                <p className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 
+                             transition-colors duration-300 group-hover:text-brand-beige/80">
                   {project.category}
                 </p>
 
-                {/* Title - Large, prominent */}
-                <h3 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight">
+                <h3 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight 
+                             transition-colors duration-300 group-hover:text-brand-beige">
                   {project.title}
                 </h3>
 
-                {/* Brief - Balanced size and line height for readability */}
-                <p className="text-base sm:text-lg text-brand-beige/80 leading-relaxed max-w-3xl">
+                <p className="text-base sm:text-lg text-brand-beige/80 leading-relaxed max-w-3xl 
+                             transition-opacity duration-300 group-hover:text-brand-beige">
                   {project.brief}
                 </p>
 
-                {/* Tags - Subtle but distinct */}
                 <div className="flex flex-wrap gap-2 md:gap-3 pt-2">
                   {project.tags.map((tag) => (
                     <span
                       key={tag}
                       className="px-4 py-2 text-xs tracking-wider text-brand-beige/70
-                        bg-brand-beige/5 border border-brand-beige/10 rounded-full
-                        transition-colors duration-300 hover:bg-brand-beige/10
-                        hover:border-brand-beige/20 hover:text-brand-beige"
+                               bg-brand-beige/5 border border-brand-beige/10 rounded-full
+                               transition-all duration-300 hover:bg-brand-beige/10
+                               hover:border-brand-beige/20 hover:text-brand-beige
+                               transform hover:-translate-y-0.5"
                     >
                       {tag}
                     </span>

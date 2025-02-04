@@ -3,73 +3,151 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import ServiceCards from "../components/ServiceCards";
 import { useGSAP } from "@gsap/react";
-import { ANIMATION_CONFIG } from "@/lib/animation-config";
+import { ANIMATION_CONFIG } from "@/lib/types";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { animateElements, createScrollTrigger } from "@/lib/animation-utils";
 
 // Register GSAP plugins only once on the client side
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+const HEADING_TEXT = "SERVICES I OFFER";
+
 function Services() {
   const servicesRef = useRef<HTMLElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const headingWrapperRef = useRef<HTMLHeadingElement>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   useGSAP(() => {
-    if (!servicesRef.current || !headingRef.current) return;
+    const services = servicesRef.current;
+    const headingWrapper = headingWrapperRef.current;
 
-    // Setup heading text
-    const headingText = "SERVICES I OFFER";
-    headingRef.current.innerHTML = headingText.split(" ").map(word => 
-      `<div class="inline-block overflow-hidden mr-[0.25em]">
+    if (!services || !headingWrapper) return;
+
+    // Create heading elements with proper markup
+    const words = HEADING_TEXT.split(" ")
+      .map(
+        (word, index, arr) => `
+      <div class="inline-block overflow-hidden${
+        index !== arr.length - 1 ? " mr-[0.25em]" : ""
+      }">
         <span class="inline-block">${word}</span>
-      </div>`
-    ).join("");
+      </div>
+    `
+      )
+      .join("");
 
-    // Optimize heading animation
-    const spans = headingRef.current.querySelectorAll("span");
-    const headingAnimation = animateElements({
-      elements: spans,
-      fromVars: {
-        y: 100,
-        opacity: 0,
-        filter: ANIMATION_CONFIG.blur.start
-      },
-      toVars: {
-        duration: ANIMATION_CONFIG.duration.slow,
-        ease: ANIMATION_CONFIG.ease.textReveal,
-        filter: ANIMATION_CONFIG.blur.end
-      }
-    });
+    headingWrapper.innerHTML = words;
 
-    createScrollTrigger(servicesRef.current, headingAnimation);
+    const spans = headingWrapper.querySelectorAll("span");
+    const initialSpanStyles = {
+      y: 100,
+      opacity: 0,
+      filter: "blur(8px)",
+    };
 
-    // Optimize border radius animation for desktop
-    if (!isMobile) {
-      const borderAnimation = gsap.timeline({
+    // Create a context for better memory management
+    const ctx = gsap.context(() => {
+      // Set initial states
+      gsap.set(spans, initialSpanStyles);
+
+      // Main timeline for heading animation
+      const mainTimeline = gsap.timeline({
         scrollTrigger: {
-          trigger: servicesRef.current,
-          start: "top bottom",
-          end: "top top",
-          scrub: 1
-        }
+          trigger: services,
+          start: "top center+=40%",
+          toggleActions: "play none none reverse",
+        },
+        defaults: {
+          duration: ANIMATION_CONFIG.duration,
+          ease: "power3.out",
+        },
       });
 
-      gsap.set(servicesRef.current, {
-        borderRadius: "48px",
-        willChange: "border-radius"
-      });
-
-      borderAnimation.to(servicesRef.current, {
-        borderRadius: "0px",
-        ease: "none",
+      // Heading animation
+      mainTimeline.to(spans, {
+        y: 0,
+        opacity: 1,
+        filter: "blur(0px)",
+        stagger: ANIMATION_CONFIG.stagger,
+        duration: 1.2,
+        ease: "power4.out",
+        onStart: () => {
+          spans.forEach((span) => {
+            if (span instanceof HTMLElement) {
+              span.style.willChange = "transform, opacity, filter";
+            }
+          });
+        },
         onComplete: () => {
-          gsap.set(servicesRef.current, { willChange: "auto" });
-        }
+          spans.forEach((span) => {
+            if (span instanceof HTMLElement) {
+              span.style.willChange = "auto";
+            }
+          });
+        },
       });
-    }
+
+      if (!isMobile) {
+        // Border radius animation
+        gsap.set(services, {
+          borderRadius: "48px",
+          willChange: "border-radius",
+        });
+
+        const borderRadiusTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: services,
+            start: "top bottom",
+            end: "top top",
+            scrub: 1,
+          },
+        });
+
+        borderRadiusTimeline.to(services, {
+          borderRadius: "0px",
+          ease: "none",
+          onComplete: () => {
+            if (services instanceof HTMLElement) {
+              services.style.willChange = "auto";
+            }
+          },
+        });
+
+        // Hero section blur effect
+        const heroSection = document.querySelector("#hero-section");
+        if (heroSection instanceof HTMLElement) {
+          const blurTimeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: services,
+              start: "top bottom",
+              end: "top center",
+              scrub: 1,
+            },
+          });
+
+          gsap.set(heroSection, { willChange: "filter" });
+          blurTimeline.fromTo(
+            heroSection,
+            { filter: "blur(0px)" },
+            {
+              filter: "blur(10px)",
+              onComplete: () => {
+                if (heroSection instanceof HTMLElement) {
+                  heroSection.style.willChange = "auto";
+                }
+              },
+            }
+          );
+        }
+      }
+    }, services);
+
+    // Cleanup function
+    return () => {
+      ctx.kill();
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+    };
   }, [isMobile]);
 
   return (
@@ -78,12 +156,11 @@ function Services() {
       className="w-full min-h-screen bg-brand-beige px-10 pt-20 overflow-hidden"
     >
       <h2
-        ref={headingRef}
+        ref={headingWrapperRef}
         className="text-4xl md:text-5xl lg:text-7xl text-brand-olive mb-12"
       />
       <ServiceCards />
     </section>
   );
 }
-
 export default Services;
