@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, League_Spartan } from "next/font/google";
 import "./globals.css";
+import Footer from "@/ui/components/Footer";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -17,7 +18,7 @@ const leagueSpartan = League_Spartan({
 });
 const inter = Inter({
   variable: "--font-inter",
-  subsets:["latin"]
+  subsets: ["latin"]
 })
 export const metadata: Metadata = {
   title: "talyawy.dev",
@@ -32,9 +33,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${leagueSpartan.variable} ${inter.variable} antialiased`}
+        className={`${leagueSpartan.variable} ${inter.variable} antialiased min-h-screen flex flex-col`}
       >
-        {children}
+        <main className="flex-grow">
+          {children}
+        </main>
+        <Footer className={leagueSpartan.variable} />
       </body>
     </html>
   );
