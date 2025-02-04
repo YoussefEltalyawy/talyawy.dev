@@ -45,9 +45,9 @@ const Navigation = () => {
           relative 
           bg-white/5 backdrop-blur-2xl border border-white/10 rounded-full 
           flex space-x-4 shadow-lg items-center
-          px-4 py-1 text-xs
-          sm:px-8 sm:py-2 sm:text-sm   
-           lg:text-base  /* Desktop: increased padding & text size */
+          px-4 py-1
+          sm:px-8 sm:py-2   
+           text-base  /* Desktop: increased padding & text size */
         "
       >
         {/* Highlight for the active link */}
@@ -56,7 +56,7 @@ const Navigation = () => {
           className="
             absolute left-0 bg-white/10 rounded-full pointer-events-none transition-all duration-300 
             -translate-y-1/3
-            h-6         /* Mobile highlight height */
+            h-8         /* Mobile highlight height */
             sm:h-8      /* Tablet highlight height */
             z-0
           "
