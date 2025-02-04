@@ -3,6 +3,7 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import ProjectCursor from "../components/ProjectCursor";
+import Link from "next/link";
 
 // Register ScrollTrigger
 if (typeof window !== "undefined") {
@@ -16,6 +17,7 @@ interface Project {
   brief: string;
   video: string;
   tags: string[];
+  link: string;
 }
 
 const projects: Project[] = [
@@ -31,6 +33,7 @@ const projects: Project[] = [
       "3D ELEMENTS",
       "GSAP",
     ],
+    link: "https://fizzi.vercel.app/",
   },
   {
     id: 2,
@@ -47,6 +50,7 @@ const projects: Project[] = [
       "FULL-STACK",
       "WEB DESIGN",
     ],
+    link: "https://saltyeg.com/",
   },
 ];
 
@@ -227,9 +231,12 @@ const SelectedWorks: React.FC = () => {
           }`}
         >
           {projects.map((project, index) => (
-            <div
+            <Link
               key={project.id}
-              className="project-card group"
+              href={project.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block project-card group"
               onMouseEnter={() => setActiveProject(index)}
               onMouseLeave={() => setActiveProject(null)}
             >
@@ -281,7 +288,7 @@ const SelectedWorks: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
