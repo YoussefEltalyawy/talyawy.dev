@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, memo } from "react";
 import gsap from "gsap";
 import { Service } from "@/lib/types";
 import { ChevronDown } from "lucide-react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const services: Service[] = [
   {
@@ -54,6 +55,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   const underlineRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.Context | null>(null);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const animateContent = useCallback(() => {
     if (!contentRef.current || !underlineRef.current || !chevronRef.current) return;
@@ -63,56 +65,76 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
       animationRef.current.kill();
     }
 
-    // Create a new animation context
+    if (isMobile) {
+      // Simplified mobile animations
+      gsap.to(chevronRef.current, {
+        rotation: isOpen ? 180 : 0,
+        duration: 0.3,
+        ease: "power2.inOut",
+      });
+
+      gsap.to(contentRef.current, {
+        height: isOpen ? "auto" : 0,
+        duration: 0.3,
+        ease: "power2.inOut",
+        onStart: () => {
+          if (contentRef.current) {
+            contentRef.current.style.opacity = "1";
+          }
+        },
+      });
+
+      return;
+    }
+
+    // Desktop animations remain the same
     animationRef.current = gsap.context(() => {
       const timeline = gsap.timeline({
         defaults: { ease: "power4.out" },
       });
 
-      if (contentRef.current && underlineRef.current && chevronRef.current) {
-        timeline
-          .to(chevronRef.current, {
-            rotation: isOpen ? 180 : 0,
-            duration: 0.6,
+      timeline
+        .to(chevronRef.current, {
+          rotation: isOpen ? 180 : 0,
+          duration: 0.6,
+          ease: "power3.inOut",
+        })
+        .to(
+          contentRef.current,
+          {
+            height: isOpen ? "auto" : 0,
+            duration: 0.8,
             ease: "power3.inOut",
-          })
-          .to(
-            contentRef.current,
-            {
-              height: isOpen ? "auto" : 0,
-              duration: 0.8,
-              ease: "power3.inOut",
-              onStart: () => {
-                if (contentRef.current) {
-                  contentRef.current.style.opacity = "1";
-                }
-              },
+            onStart: () => {
+              if (contentRef.current) {
+                contentRef.current.style.opacity = "1";
+              }
             },
-            "-=0.4"
-          )
-          .to(
-            underlineRef.current,
-            {
-              opacity: isOpen ? 1 : 0,
-              duration: 0.6,
-            },
-            "-=0.4"
-          );
+          },
+          "-=0.4"
+        )
+        .to(
+          underlineRef.current,
+          {
+            opacity: isOpen ? 1 : 0,
+            duration: 0.6,
+          },
+          "-=0.4"
+        );
 
-        if (isOpen && contentRef.current) {
-          const features = contentRef.current.querySelectorAll(".feature-item");
-          timeline.from(
-            features,
-            {
-              y: 40,
-              opacity: 0,
-              duration: 0.8,
-              stagger: 0.08,
-              ease: "power3.out",
-            },
-            "-=0.4"
-          );
-        }
+      if (isOpen && contentRef.current) {
+        const features = contentRef.current.querySelectorAll(".feature-item");
+        timeline.from(
+          features,
+          {
+            y: 40,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.08,
+            ease: "power3.out",
+          },
+          "-=0.4"
+        );
       }
     });
 
@@ -121,7 +143,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
         animationRef.current.kill();
       }
     };
-  }, [isOpen]);
+  }, [isOpen, isMobile]);
 
   React.useEffect(() => {
     animateContent();
@@ -192,7 +214,7 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
             ref={chevronRef}
             className="absolute right-0 top-3"
           >
-            <ChevronDown 
+            <ChevronDown
               className="w-6 h-6 text-brand-olive/60 transition-colors duration-300
                        group-hover:text-brand-olive"
             />

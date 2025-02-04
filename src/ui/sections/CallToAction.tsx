@@ -153,8 +153,8 @@ const CallToAction: React.FC = () => {
               href="mailto:talyawy@proton.me"
               className="group relative inline-flex items-center gap-6 sm:gap-8
                        p-6 sm:p-8 rounded-3xl w-full max-w-[800px] md:max-w-none
-                       border border-brand-beige/10 backdrop-blur-sm
-                       hover:border-brand-beige/20 hover:bg-brand-beige/5 
+                       border border-brand-beige/30 backdrop-blur-sm
+                       hover:border-brand-beige/40 hover:bg-brand-beige/5 
                        transition-all duration-500 ease-out"
             >
               <div className="button-element flex-shrink-0 overflow-hidden">
