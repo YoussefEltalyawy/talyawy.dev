@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
-function debounce(fn: Function, ms: number) {
+function debounce<T extends (...args: unknown[]) => void>(fn: T, ms: number) {
   let timer: NodeJS.Timeout;
-  return (...args: any[]) => {
+  return (...args: Parameters<T>) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), ms);
   };

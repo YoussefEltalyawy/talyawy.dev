@@ -55,7 +55,6 @@ const ServiceCard = memo(({ service, isOpen, onToggle }: ServiceCardProps) => {
   const underlineRef = useRef<HTMLDivElement>(null);
   const chevronRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<gsap.Context | null>(null);
-  const isMobile = useIsMobile();
 
   // Pre-hide content to prevent flash
   useLayoutEffect(() => {

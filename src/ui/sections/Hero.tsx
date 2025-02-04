@@ -60,7 +60,7 @@ export const Hero: React.FC = () => {
         transformOrigin: "left bottom",
       });
     }
-  }, [isMobile]);
+  }, [isMobile, textRefs]);
 
   // Main animation
   useGSAP(() => {
