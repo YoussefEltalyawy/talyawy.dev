@@ -116,7 +116,7 @@ const Navigation = () => {
           className="
             absolute left-0 bg-white/10 rounded-full pointer-events-none
             transition-all duration-300 -translate-y-1/3
-            h-8 sm:h-8
+            h-8
             z-0
           "
           style={{ width: "0px" }}
