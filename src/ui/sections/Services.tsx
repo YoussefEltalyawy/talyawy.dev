@@ -107,7 +107,7 @@ function Services() {
         });
 
         // Hero section blur effect - only on desktop with optimized performance
-        const heroSection = document.querySelector("#hero-section");
+        const heroSection = document.querySelector("#home");
         if (heroSection instanceof HTMLElement) {
           const blurTimeline = gsap.timeline({
             scrollTrigger: {
@@ -146,6 +146,7 @@ function Services() {
 
   return (
     <section
+      id="services"
       ref={servicesRef}
       className="w-full min-h-screen bg-brand-beige px-6 sm:px-10 pt-20 overflow-hidden"
     >

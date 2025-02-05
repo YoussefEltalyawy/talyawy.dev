@@ -1,4 +1,3 @@
-// page.tsx
 "use client";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import CallToAction from "@/ui/sections/CallToAction";
@@ -52,4 +51,5 @@ function Home() {
     </main>
   );
 }
+
 export default Home;

@@ -170,7 +170,7 @@ export const Hero: React.FC = () => {
   return (
     <section
       ref={scopeRef}
-      id="hero-section"
+      id="home"
       className="fixed min-h-screen w-full bg-black overflow-hidden"
     >
       {/* Background circle */}

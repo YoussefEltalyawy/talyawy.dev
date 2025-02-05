@@ -216,11 +216,12 @@ const SelectedWorks: React.FC = () => {
 
   return (
     <section
+      id="work"
       ref={sectionRef}
       className="relative min-h-screen bg-brand-olive text-brand-beige px-4 sm:px-6 md:px-8 lg:px-10 py-12 md:py-16 lg:py-20"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(202,190,182,0.03),transparent)] pointer-events-none" />
-            <ProjectCursor isVisible={activeProject !== null} />
+      <ProjectCursor isVisible={activeProject !== null} />
       <h2
         ref={headingRef}
         className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-brand-beige tracking-tight mb-12 md:mb-16 lg:mb-20"
@@ -245,7 +246,8 @@ const SelectedWorks: React.FC = () => {
 
         <div
           ref={projectsRef}
-          className={`space-y-20 md:space-y-32 lg:space-y-40 ${!isDesktop ? "col-span-1" : ""
+          className={`space-y-20 md:space-y-32 lg:space-y-40 ${
+            !isDesktop ? "col-span-1" : ""
           }`}
         >
           {projects.map((project, index) => (
@@ -258,10 +260,14 @@ const SelectedWorks: React.FC = () => {
               onMouseEnter={() => setActiveProject(index)}
               onMouseLeave={() => setActiveProject(null)}
             >
-              <div className="aspect-video overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8 
-                             transform transition-transform duration-700 ease-out hover:scale-[1.02]">
-                <div className="absolute inset-0 bg-brand-olive/20 mix-blend-overlay transition-opacity duration-300 
-                               group-hover:opacity-0" />
+              <div
+                className="aspect-video overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8 
+                             transform transition-transform duration-700 ease-out hover:scale-[1.02]"
+              >
+                <div
+                  className="absolute inset-0 bg-brand-olive/20 mix-blend-overlay transition-opacity duration-300 
+                               group-hover:opacity-0"
+                />
                 <video
                   src={project.video}
                   autoPlay
@@ -271,23 +277,31 @@ const SelectedWorks: React.FC = () => {
                   className="w-full h-full object-cover transform scale-105 transition-transform duration-700 
                            group-hover:scale-100"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-olive/40 to-transparent opacity-60 
-                               transition-opacity duration-300 group-hover:opacity-30" />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-brand-olive/40 to-transparent opacity-60 
+                               transition-opacity duration-300 group-hover:opacity-30"
+                />
               </div>
-              
+
               <div className="space-y-6 transform transition-all duration-500">
-                <p className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 
-                             transition-colors duration-300 group-hover:text-brand-beige/80">
+                <p
+                  className="text-xs sm:text-sm uppercase tracking-widest text-brand-beige/60 
+                             transition-colors duration-300 group-hover:text-brand-beige/80"
+                >
                   {project.category}
                 </p>
 
-                <h3 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight 
-                             transition-colors duration-300 group-hover:text-brand-beige">
+                <h3
+                  className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight 
+                             transition-colors duration-300 group-hover:text-brand-beige"
+                >
                   {project.title}
                 </h3>
 
-                <p className="text-base sm:text-lg text-brand-beige/80 leading-relaxed max-w-3xl 
-                             transition-opacity duration-300 group-hover:text-brand-beige">
+                <p
+                  className="text-base sm:text-lg text-brand-beige/80 leading-relaxed max-w-3xl 
+                             transition-opacity duration-300 group-hover:text-brand-beige"
+                >
                   {project.brief}
                 </p>
 

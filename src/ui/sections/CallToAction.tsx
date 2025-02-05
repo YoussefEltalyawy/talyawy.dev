@@ -161,6 +161,7 @@ const CallToAction: React.FC = () => {
 
   return (
     <section
+    id="contact"
       ref={sectionRef}
       className="relative min-h-screen bg-black text-brand-beige flex items-center 
                  overflow-hidden px-4 sm:px-8 md:px-12 lg:px-16"
