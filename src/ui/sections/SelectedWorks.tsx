@@ -1,9 +1,11 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import ProjectCursor from "../components/ProjectCursor";
 import Link from "next/link";
+import Image from "next/image";
+import { useMediaQuery } from "@/hooks/useMediaQuery"; // Adjust the import path as needed
 
 // Register ScrollTrigger
 if (typeof window !== "undefined") {
@@ -18,8 +20,10 @@ interface Project {
   video: string;
   tags: string[];
   link: string;
+  placeholder: string;
 }
 
+// Sample projects data with placeholder image URL added
 const projects: Project[] = [
   {
     id: 1,
@@ -27,24 +31,18 @@ const projects: Project[] = [
     category: "3D Landing Page",
     brief:
       "A modern landing page for an imaginary beverage product. The project showcases a perfect blend of 3D elements and web design, featuring custom 3D models created in Blender, an engaging UI designed in Figma, and smooth animations implemented with Next.js.",
-    video: "/fizzi.mp4",
-    tags: [
-      "NEXT.JS",
-      "3D MODELING",
-      "BLENDER",
-      "FIGMA",
-      "UI DESIGN",
-      "GSAP",
-    ],
+    video: "/fizzi-showcase.mp4",
+    tags: ["NEXT.JS", "3D MODELING", "BLENDER", "FIGMA", "UI DESIGN", "GSAP"],
     link: "https://fizzi.vercel.app/",
+    placeholder: "/fizzi-placeholder.png",
   },
   {
     id: 2,
     title: "Salty Cai.",
     category: "Shopify & E-Commerce",
     brief:
-      " A fully customized e-commerce website for an Egyptian fashion brand that blends old-money aesthetics with streetwear. Built using Shopify's Hydrogen framework, the project covered design, SEO, and full-stack development.",
-    video: "/Salty-Home.mp4",
+      "A fully customized e-commerce website for an Egyptian fashion brand that blends old-money aesthetics with streetwear. Built using Shopify's Hydrogen framework, the project covered design, SEO, and full-stack development.",
+    video: "/salty-showcase.mp4",
     tags: [
       "SHOPIFY",
       "E-COMMERCE",
@@ -54,6 +52,7 @@ const projects: Project[] = [
       "WEB DESIGN",
     ],
     link: "https://saltyeg.com/",
+    placeholder: "/salty-placeholder.png",
   },
   {
     id: 3,
@@ -61,7 +60,7 @@ const projects: Project[] = [
     category: "Productivity SaaS App",
     brief:
       "An elegant productivity application that combines task management, note-taking, and time tracking functionalities in one seamless interface. Features drag-and-drop task organization, sleek dark-themed design, and comprehensive productivity tools. Built with a full-stack approach using Supabase for backend and Kinde for authentication.",
-    video: "/Ankh.mp4",
+    video: "/ankh-showcase.mp4",
     tags: [
       "NEXT.JS",
       "SUPABASE",
@@ -71,8 +70,42 @@ const projects: Project[] = [
       "DRAG & DROP",
     ],
     link: "https://ankhbytalyawy.vercel.app/",
+    placeholder: "/ankh-placecholder.png",
   },
 ];
+
+// This component displays a placeholder image until the video has loaded.
+const VideoWithPlaceholder: React.FC<{
+  src: string;
+  placeholder: string;
+  className?: string;
+}> = ({ src, placeholder, className }) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <>
+      {!loaded && (
+        <Image
+          src={placeholder}
+          alt="Loading video"
+          fill
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+      <video
+        src={src}
+        autoPlay
+        loop
+        muted
+        playsInline
+        onLoadedData={() => setLoaded(true)}
+        className={`${className} transition-opacity duration-700 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    </>
+  );
+};
 
 const SelectedWorks: React.FC = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -81,17 +114,9 @@ const SelectedWorks: React.FC = () => {
   const changingDigitRef = useRef<HTMLSpanElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const [activeProject, setActiveProject] = useState<number | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
 
-  useEffect(() => {
-    const checkIsDesktop = () => {
-      setIsDesktop(window.innerWidth >= 1024);
-    };
-
-    checkIsDesktop();
-    window.addEventListener("resize", checkIsDesktop);
-    return () => window.removeEventListener("resize", checkIsDesktop);
-  }, []);
+  // Use the provided useMediaQuery hook to detect desktop
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   useGSAP(() => {
     if (!sectionRef.current || !headingRef.current || !projectsRef.current)
@@ -103,7 +128,8 @@ const SelectedWorks: React.FC = () => {
     headingRef.current.innerHTML = words
       .map(
         (word, index) => `
-        <div class="inline-block overflow-hidden${index !== words.length - 1 ? " mr-[0.25em]" : ""
+        <div class="inline-block overflow-hidden${
+          index !== words.length - 1 ? " mr-[0.25em]" : ""
         }">
           <span class="inline-block will-change-transform">
             ${word}
@@ -262,18 +288,22 @@ const SelectedWorks: React.FC = () => {
             >
               <div
                 className="aspect-video overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8 
-                             transform transition-transform duration-700 ease-out hover:scale-[1.02]"
+                             transform transition-transform duration-700 ease-out hover:scale-[1.01]"
               >
                 <div
                   className="absolute inset-0 bg-brand-olive/20 mix-blend-overlay transition-opacity duration-300 
                                group-hover:opacity-0"
                 />
-                <video
+                {/* Mobile indicator overlay */}
+                {!isDesktop && (
+                  <div className="absolute bottom-4 right-4 z-10 bg-brand-beige text-brand-olive px-3 py-1 rounded text-sm transform transition-transform duration-300 hover:scale-95">
+                    View Live Preview
+                  </div>
+                )}
+                {/* Video with placeholder */}
+                <VideoWithPlaceholder
                   src={project.video}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
+                  placeholder={project.placeholder}
                   className="w-full h-full object-cover transform scale-105 transition-transform duration-700 
                            group-hover:scale-100"
                 />
