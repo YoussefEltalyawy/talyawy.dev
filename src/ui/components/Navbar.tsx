@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import gsap from "gsap";
 
 const Navigation = () => {
@@ -7,12 +7,16 @@ const Navigation = () => {
   const highlightRef = useRef<HTMLDivElement>(null);
   const [activeSection, setActiveSection] = useState("home");
 
-  const menuItems = [
-    { id: "home", label: "Home" },
-    { id: "services", label: "Services" },
-    { id: "work", label: "Work" },
-    { id: "contact", label: "Contact" },
-  ];
+  // Wrap menuItems in useMemo so its reference doesn't change on every render.
+  const menuItems = useMemo(
+    () => [
+      { id: "home", label: "Home" },
+      { id: "services", label: "Services" },
+      { id: "work", label: "Work" },
+      { id: "contact", label: "Contact" },
+    ],
+    []
+  );
 
   const scrollToSection = (id: string) => {
     setActiveSection(id);
@@ -106,7 +110,7 @@ const Navigation = () => {
           text-base
         "
       >
-        {/* Highlighter element with updated CSS classes to match the second version */}
+        {/* Highlighter element */}
         <div
           ref={highlightRef}
           className="
@@ -124,7 +128,7 @@ const Navigation = () => {
             onClick={() => scrollToSection(item.id)}
             className={`
               relative
-              px-4 py-2
+              px-2 md:px-4 py-2
               font-medium transition-colors duration-200 z-10
               ${
                 activeSection === item.id
