@@ -5,6 +5,7 @@ import Footer from "@/ui/components/Footer";
 // import Navbar from "@/ui/components/Navbar";
 import Navigation from "@/ui/components/Navbar";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
         <main className="flex-grow">
           {children}
           <SpeedInsights />
+          <Analytics/>
         </main>
         <Footer className={leagueSpartan.variable} />
       </body>
