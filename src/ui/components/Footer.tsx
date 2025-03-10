@@ -43,7 +43,7 @@ const Footer = ({ className }: FooterProps) => {
               GitHub <ArrowUpRight size={16} />
             </Link>
             <Link
-              href="https://www.instagram.com/yousefeltalyawy/"
+              href="https://www.instagram.com/talyawy.dev/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-base font-normal text-brand-beige/80 hover:text-brand-beige transition-colors duration-300"
