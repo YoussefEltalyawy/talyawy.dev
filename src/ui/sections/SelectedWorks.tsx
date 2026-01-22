@@ -72,6 +72,22 @@ const projects: Project[] = [
     link: "https://ankhbytalyawy.vercel.app/",
     placeholder: "/ankh-placecholder.png",
   },
+  {
+    id: 4,
+    title: "Woke.eg",
+    category: "Shopify & E-Commerce",
+    brief:
+      "A fully customized e-commerce theme for WOKE, a movement-driven clothing brand that challenges the monotony of routine life. The website embodies the brand's philosophy of self-discovery and empowerment through thoughtful design and seamless user experience. Built using Shopify Liquid with a design-first approach prototyped in Figma, the project delivers a cohesive digital presence that reflects WOKE's deeper message woven into every embroidered piece and carefully curated photoshoot.",
+    video: "/woke-showcase.mp4",
+    tags: [
+      "SHOPIFY",
+      "E-COMMERCE",
+      "LIQUID",
+      "WEB DESIGN",
+    ],
+    link: "https://woke-eg.com/",
+    placeholder: "/salty-placeholder.png",
+  },
 ];
 
 // This component displays a placeholder image until the video has loaded.
@@ -287,7 +303,7 @@ const SelectedWorks: React.FC = () => {
               onMouseLeave={() => setActiveProject(null)}
             >
               <div
-                className="aspect-video overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8 
+                className="overflow-hidden bg-black/20 relative rounded-lg mb-6 md:mb-8 
                              transform transition-transform duration-700 ease-out hover:scale-[1.01]"
               >
                 <div
@@ -304,8 +320,7 @@ const SelectedWorks: React.FC = () => {
                 <VideoWithPlaceholder
                   src={project.video}
                   placeholder={project.placeholder}
-                  className="w-full h-full object-cover transform scale-105 transition-transform duration-700 
-                           group-hover:scale-100"
+                  className="w-full h-full object-contain"
                 />
                 <div
                   className="absolute inset-0 bg-gradient-to-t from-brand-olive/40 to-transparent opacity-60 
