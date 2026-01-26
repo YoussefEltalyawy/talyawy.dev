@@ -27,17 +27,6 @@ interface Project {
 const projects: Project[] = [
   {
     id: 1,
-    title: "Fizzi",
-    category: "3D Landing Page",
-    brief:
-      "A modern landing page for an imaginary beverage product. The project showcases a perfect blend of 3D elements and web design, featuring custom 3D models created in Blender, an engaging UI designed in Figma, and smooth animations implemented with Next.js.",
-    video: "/fizzi-showcase.mp4",
-    tags: ["NEXT.JS", "3D MODELING", "BLENDER", "FIGMA", "UI DESIGN", "GSAP"],
-    link: "https://fizzi.vercel.app/",
-    placeholder: "/fizzi-placeholder.png",
-  },
-  {
-    id: 2,
     title: "Salty Cai.",
     category: "Shopify & E-Commerce",
     brief:
@@ -55,7 +44,7 @@ const projects: Project[] = [
     placeholder: "/salty-placeholder.png",
   },
   {
-    id: 3,
+    id: 2,
     title: "Ankh",
     category: "Productivity SaaS App",
     brief:
@@ -73,7 +62,7 @@ const projects: Project[] = [
     placeholder: "/ankh-placecholder.png",
   },
   {
-    id: 4,
+    id: 3,
     title: "Woke.eg",
     category: "Shopify & E-Commerce",
     brief:
